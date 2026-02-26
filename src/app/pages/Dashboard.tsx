@@ -4,6 +4,7 @@ import { Plus, LogOut } from 'lucide-react';
 import { GroupCard } from '../components/GroupCard';
 import { AddGroupDialog } from '../components/AddGroupDialog';
 import { GruposDB, MiembrosDB, initializeDB, type Grupo } from '../lib/db';
+import { ThemeToggleButton } from '../components/ThemeToggleButton';
 
 interface GroupDisplay {
   id: number;
@@ -67,13 +68,16 @@ export function Dashboard() {
           <h1 className="text-3xl font-bold text-gray-900">
             ¡Hola! {username}
           </h1>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-50 font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-            Cerrar Sesión
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggleButton />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-950 font-medium py-2 px-4 rounded-lg transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
       </header>
 
@@ -93,7 +97,7 @@ export function Dashboard() {
         {/* Groups Section */}
         <section>
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Mis Grupos</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {groups.map((group) => (
               <GroupCard

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play } from 'lucide-react';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
+import { ThemeToggleButton } from '../components/ThemeToggleButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,32 +69,10 @@ interface MemberRowProps {
   member: MemberUI;
   onEdit: (m: MemberUI) => void;
   onDelete: (id: number) => void;
-  onUpdatePuntaje: (id: number, puntaje: number) => void;
   onPresent: (member: MemberUI) => void;
 }
 
-function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje, onPresent }: MemberRowProps) {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(member.puntaje.toString());
-
-  const handleConfirm = () => {
-    const val = parseInt(draft, 10);
-    if (!isNaN(val) && val >= 0) {
-      onUpdatePuntaje(member.id, val);
-    }
-    setEditing(false);
-  };
-
-  const handleCancel = () => {
-    setDraft(member.puntaje.toString());
-    setEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleConfirm();
-    if (e.key === 'Escape') handleCancel();
-  };
-
+function MemberRow({ member, onEdit, onDelete, onPresent }: MemberRowProps) {
   return (
     <div className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-3">
       {/* Info del miembro */}
@@ -109,45 +88,14 @@ function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje, onPresent }: Mem
         </div>
       </div>
 
-      {/* Puntaje editable */}
+      {/* Puntaje (no editable en la lista) */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        {editing ? (
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              min="0"
-              value={draft}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value)}
-              onKeyDown={handleKeyDown}
-              autoFocus
-              className="w-16 px-2 py-1 text-sm border border-blue-400 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <span className="text-xs text-gray-500">pts</span>
-            <button
-              onClick={handleConfirm}
-              className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
-              title="Confirmar"
-            >
-              <Check className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleCancel}
-              className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
-              title="Cancelar"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => { setDraft(member.puntaje.toString()); setEditing(true); }}
-            className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-full text-sm transition-colors cursor-pointer"
-            title="Editar puntaje"
-          >
-            <span>{member.puntaje}</span>
-            <span className="text-indigo-400 font-normal text-xs">pts</span>
-          </button>
-        )}
+        <div
+          className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full text-sm"
+        >
+          <span>{member.puntaje}</span>
+          <span className="text-indigo-400 font-normal text-xs">pts</span>
+        </div>
 
         {/* Menú de acciones */}
         <DropdownMenu>
@@ -172,7 +120,7 @@ function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje, onPresent }: Mem
               <Play className="w-4 h-4 fill-current" />
               <span>Presentar</span>
             </DropdownMenuItem>
-            
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem
@@ -186,9 +134,9 @@ function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje, onPresent }: Mem
               <AlertDialogContent className="bg-white">
                 <AlertDialogHeader>
                   <AlertDialogTitle>¿Eliminar miembro?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      ¿Estás seguro de que deseas eliminar a **{member.name}**? Esta acción no se puede deshacer.
-                    </AlertDialogDescription>
+                  <AlertDialogDescription>
+                    ¿Estás seguro de que deseas eliminar a **{member.name}**? Esta acción no se puede deshacer.
+                  </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
@@ -292,10 +240,6 @@ export function GroupView() {
     loadGroupData();
   };
 
-  const handleUpdatePuntaje = (id: number, puntaje: number) => {
-    MiembrosDB.updatePuntaje(id, puntaje);
-    loadGroupData();
-  };
 
   const handleDeleteMember = (id: number) => {
     MiembrosDB.delete(id, gId);
@@ -389,14 +333,16 @@ export function GroupView() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <ThemeToggleButton />
               <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
                 <button
                   onClick={() => setIsResetConfirmOpen(true)}
-                  className="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                  className="flex items-center gap-2 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-medium py-2 px-4 rounded-lg transition-colors"
                   title="Resetear puntajes"
                 >
                   <RotateCcw className="w-5 h-5" />
+                  Resetear
                 </button>
                 <AlertDialogContent className="bg-white">
                   <AlertDialogHeader>
@@ -419,10 +365,11 @@ export function GroupView() {
               <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
                 <button
                   onClick={() => setIsDeleteGroupConfirmOpen(true)}
-                  className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                  className="flex items-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-50 font-medium py-2 px-4 rounded-lg transition-colors"
                   title="Eliminar grupo"
                 >
                   <Trash2 className="w-5 h-5" />
+                  Eliminar Grupo
                 </button>
                 <AlertDialogContent className="bg-white">
                   <AlertDialogHeader>
@@ -472,7 +419,6 @@ export function GroupView() {
                     member={member}
                     onEdit={handleOpenEditMemberDialog}
                     onDelete={handleDeleteMember}
-                    onUpdatePuntaje={handleUpdatePuntaje}
                     onPresent={handlePresentMember}
                   />
                 ))}

@@ -122,6 +122,18 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  /* SVG paths, images and decorative elements should not fade */
+  img,
+  svg,
+  svg * {
+    transition: none !important;
   }
 
   body {
@@ -178,4 +190,163 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+/* ── Dark mode overrides ───────────────────────────────────────────────────────
+   Makes hardcoded Tailwind classes respond to the .dark class on <html>
+   without having to add dark: variants to every JSX element individually.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Backgrounds */
+html.dark .bg-white {
+  background-color: oklch(0.2 0 0) !important;
+}
+
+html.dark .bg-gray-50 {
+  background-color: oklch(0.17 0 0) !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: oklch(0.22 0 0) !important;
+}
+
+html.dark .bg-gray-200 {
+  background-color: oklch(0.28 0 0) !important;
+}
+
+html.dark .bg-gray-300 {
+  background-color: oklch(0.35 0 0) !important;
+}
+
+/* Text */
+html.dark .text-gray-900 {
+  color: oklch(0.97 0 0) !important;
+}
+
+html.dark .text-gray-800 {
+  color: oklch(0.92 0 0) !important;
+}
+
+html.dark .text-gray-700 {
+  color: oklch(0.87 0 0) !important;
+}
+
+html.dark .text-gray-600 {
+  color: oklch(0.75 0 0) !important;
+}
+
+html.dark .text-gray-500 {
+  color: oklch(0.63 0 0) !important;
+}
+
+html.dark .text-gray-400 {
+  color: oklch(0.55 0 0) !important;
+}
+
+html.dark .text-gray-300 {
+  color: oklch(0.45 0 0) !important;
+}
+
+/* Borders */
+html.dark .border-gray-200 {
+  border-color: oklch(0.3 0 0) !important;
+}
+
+html.dark .border-gray-300 {
+  border-color: oklch(0.38 0 0) !important;
+}
+
+/* Inputs */
+html.dark input {
+  background-color: oklch(0.22 0 0);
+  border-color: oklch(0.35 0 0);
+  color: oklch(0.95 0 0);
+}
+
+/* Hover states */
+html.dark .hover\:bg-gray-50:hover {
+  background-color: oklch(0.25 0 0) !important;
+}
+
+html.dark .hover\:bg-gray-100:hover {
+  background-color: oklch(0.28 0 0) !important;
+}
+
+html.dark .hover\:bg-gray-200:hover {
+  background-color: oklch(0.32 0 0) !important;
+}
+
+html.dark .hover\:text-gray-900:hover {
+  color: oklch(0.97 0 0) !important;
+}
+
+/* Divide lines */
+html.dark .divide-gray-200>*+* {
+  border-color: oklch(0.3 0 0) !important;
+}
+
+/* Red border button (Cerrar sesión) */
+html.dark .border-red-600 {
+  border-color: #f87171 !important;
+}
+
+html.dark .text-red-600 {
+  color: #f87171 !important;
+}
+
+html.dark .hover\:bg-red-50:hover {
+  background-color: oklch(0.2 0.05 20) !important;
+}
+
+/* Indigo elements */
+html.dark .bg-indigo-50 {
+  background-color: oklch(0.22 0.04 275) !important;
+}
+
+html.dark .text-indigo-700 {
+  color: oklch(0.75 0.13 275) !important;
+}
+
+html.dark .text-indigo-400 {
+  color: oklch(0.65 0.1 275) !important;
+}
+
+html.dark .text-indigo-600 {
+  color: oklch(0.7 0.15 275) !important;
+}
+
+html.dark .hover\:bg-indigo-50:hover {
+  background-color: oklch(0.26 0.04 275) !important;
+}
+
+/* Blue elements */
+html.dark .text-blue-600 {
+  color: oklch(0.7 0.17 255) !important;
+}
+
+html.dark .text-blue-700 {
+  color: oklch(0.75 0.17 255) !important;
+}
+
+html.dark .bg-blue-100 {
+  background-color: oklch(0.22 0.05 255) !important;
+}
+
+/* Green elements */
+html.dark .text-green-600 {
+  color: oklch(0.72 0.17 155) !important;
+}
+
+html.dark .text-green-700 {
+  color: oklch(0.77 0.17 155) !important;
+}
+
+/* Separators */
+html.dark .bg-gray-300.h-8.w-px,
+html.dark .h-8.w-px {
+  background-color: oklch(0.35 0 0) !important;
 }

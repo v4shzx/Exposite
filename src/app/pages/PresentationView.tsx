@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Save, CheckCircle2 } from 'lucide-react';
 import { GruposDB, MiembrosDB, ReglasDB, type Miembro, type Regla } from '../lib/db';
+import { ThemeToggleButton } from '../components/ThemeToggleButton';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -10,7 +11,7 @@ interface RubricScore {
   titulo: string;
   descripcion: string;
   maxPuntaje: number;
-  puntaje: number;
+  puntaje: number | null;
 }
 
 // ── Componente principal ─────────────────────────────────────────────────────
@@ -47,7 +48,7 @@ export function PresentationView() {
         titulo: r.titulo,
         descripcion: r.descripcion,
         maxPuntaje: r.puntaje,
-        puntaje: 0,
+        puntaje: null,
       }))
     );
   }, [gId, mId, navigate]);
@@ -57,13 +58,16 @@ export function PresentationView() {
     setScores((prev) =>
       prev.map((s) => {
         if (s.reglaId !== reglaId) return s;
+        if (value === '') return { ...s, puntaje: null };
         const clamped = isNaN(num) ? 0 : Math.min(Math.max(num, 0), s.maxPuntaje);
         return { ...s, puntaje: clamped };
       })
     );
   };
 
-  const totalObtenido = scores.reduce((acc, s) => acc + s.puntaje, 0);
+  const isComplete = scores.length > 0 && scores.every(s => s.puntaje !== null);
+
+  const totalObtenido = scores.reduce((acc, s) => acc + (s.puntaje || 0), 0);
   const totalMax = scores.reduce((acc, s) => acc + s.maxPuntaje, 0);
   const pct = totalMax > 0 ? Math.round((totalObtenido / totalMax) * 100) : 0;
 
@@ -83,21 +87,24 @@ export function PresentationView() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-4">
-          <button
-            onClick={() => navigate(`/group/${gId}`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Volver al grupo</span>
-          </button>
-          <div className="h-8 w-px bg-gray-300" />
-          <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
-              {grupo?.nombre ?? 'Grupo'}
-            </p>
-            <h1 className="text-xl font-bold text-gray-900">Presentación</h1>
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(`/group/${gId}`)}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Volver al grupo</span>
+            </button>
+            <div className="h-8 w-px bg-gray-300" />
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
+                {grupo?.nombre ?? 'Grupo'}
+              </p>
+              <h1 className="text-xl font-bold text-gray-900">Presentación</h1>
+            </div>
           </div>
+          <ThemeToggleButton />
         </div>
       </header>
 
@@ -153,9 +160,10 @@ export function PresentationView() {
                       type="number"
                       min={0}
                       max={s.maxPuntaje}
-                      value={s.puntaje}
+                      value={s.puntaje ?? ''}
                       onChange={(e) => handleScoreChange(s.reglaId, e.target.value)}
-                      className="w-20 px-3 py-2 text-center text-sm font-bold border-2 border-gray-200 focus:border-indigo-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-colors"
+                      placeholder="0"
+                      className="w-20 px-3 py-2 text-center text-sm font-bold border-2 border-gray-200 focus:border-indigo-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 transition-colors dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                     />
                     <span className="text-xs text-gray-500 whitespace-nowrap">
                       / {s.maxPuntaje} pts
@@ -168,14 +176,16 @@ export function PresentationView() {
         </section>
 
         {/* Botón guardar */}
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-center pt-2">
           <button
             onClick={handleSave}
-            disabled={saved}
+            disabled={saved || !isComplete}
             className={`flex items-center gap-2.5 font-bold px-8 py-3 rounded-xl shadow-md transition-all
               ${saved
                 ? 'bg-green-500 text-white cursor-default scale-95'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-lg hover:scale-105 active:scale-100'
+                : !isComplete
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-lg hover:scale-105 active:scale-100'
               }`}
           >
             {saved ? (

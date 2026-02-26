@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { LogIn, Eye, EyeOff } from 'lucide-react';
+import { ThemeToggleButton } from '../components/ThemeToggleButton';
 
 export function Login() {
   const [username, setUsername] = useState('');
@@ -26,6 +27,10 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center px-4">
+      {/* Theme toggle en esquina superior derecha */}
+      <div className="fixed top-4 right-4 z-10">
+        <ThemeToggleButton />
+      </div>
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
