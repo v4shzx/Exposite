@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play } from 'lucide-react';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
 import {
@@ -18,6 +18,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import {
   GruposDB,
@@ -68,9 +69,10 @@ interface MemberRowProps {
   onEdit: (m: MemberUI) => void;
   onDelete: (id: number) => void;
   onUpdatePuntaje: (id: number, puntaje: number) => void;
+  onPresent: (member: MemberUI) => void;
 }
 
-function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje }: MemberRowProps) {
+function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje, onPresent }: MemberRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(member.puntaje.toString());
 
@@ -162,11 +164,19 @@ function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje }: MemberRowProps
               <Edit2 className="w-4 h-4 text-blue-600" />
               <span>Editar</span>
             </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => onPresent(member)}
+              className="flex items-center gap-2 cursor-pointer text-green-600 focus:text-green-700"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              <span>Presentar</span>
+            </DropdownMenuItem>
             
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
+                  onSelect={(e: Event) => e.preventDefault()}
                   className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-700"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -295,6 +305,10 @@ export function GroupView() {
   const handleOpenEditMemberDialog = (member: MemberUI) => {
     setEditingMember(member);
     setIsAddMemberDialogOpen(true);
+  };
+
+  const handlePresentMember = (member: MemberUI) => {
+    navigate(`/group/${gId}/present/${member.id}`);
   };
 
   const handleResetScores = () => {
@@ -459,6 +473,7 @@ export function GroupView() {
                     onEdit={handleOpenEditMemberDialog}
                     onDelete={handleDeleteMember}
                     onUpdatePuntaje={handleUpdatePuntaje}
+                    onPresent={handlePresentMember}
                   />
                 ))}
               </div>
