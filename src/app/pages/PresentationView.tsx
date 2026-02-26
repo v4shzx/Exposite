@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Save, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, CheckCircle2 } from 'lucide-react';
 import { GruposDB, MiembrosDB, ReglasDB, type Miembro, type Regla } from '../lib/db';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
 
@@ -25,6 +25,11 @@ export function PresentationView() {
   const [miembro, setMiembro] = useState<Miembro | null>(null);
   const [scores, setScores] = useState<RubricScore[]>([]);
   const [saved, setSaved] = useState(false);
+  const [nextMemberId, setNextMemberId] = useState<number | null>(null);
+  const [allDone, setAllDone] = useState(false);
+  const [sessionCompleted, setSessionCompleted] = useState(0);
+  const [sessionTotal, setSessionTotal] = useState(0);
+  const sessionActive = sessionTotal > 0;
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
@@ -33,6 +38,11 @@ export function PresentationView() {
       return;
     }
 
+    // Reset per-member state when mId changes (React reuses component across navigations)
+    setSaved(false);
+    setNextMemberId(null);
+    setAllDone(false);
+
     const miembros = MiembrosDB.getByGrupo(gId);
     const found = miembros.find((m) => m.id === mId);
     if (!found) {
@@ -40,6 +50,18 @@ export function PresentationView() {
       return;
     }
     setMiembro(found);
+
+    // Read session data (if a presentation session is active)
+    try {
+      const raw = sessionStorage.getItem(`pres_session_${gId}`);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.active) {
+          setSessionCompleted((s.completedIds ?? []).length);
+          setSessionTotal(s.totalCount ?? 0);
+        }
+      }
+    } catch {/* ignore */ }
 
     const reglas: Regla[] = ReglasDB.getByGrupo(gId);
     setScores(
@@ -73,8 +95,33 @@ export function PresentationView() {
 
   const handleSave = () => {
     MiembrosDB.updatePuntaje(mId, totalObtenido);
+    // Mark this member as completed in the active session (if any)
+    const SESSION_KEY = `pres_session_${gId}`;
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    let remaining: number[] = [];
+    if (raw) {
+      try {
+        const s = JSON.parse(raw);
+        if (s.active && !s.completedIds.includes(mId)) {
+          s.completedIds = [...s.completedIds, mId];
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+          setSessionCompleted(s.completedIds.length);
+          // Find remaining uncompleted members
+          const allMembers = MiembrosDB.getByGrupo(gId);
+          remaining = allMembers
+            .map((m) => m.id)
+            .filter((id) => !s.completedIds.includes(id));
+        }
+      } catch {/* ignore */ }
+    }
+    // Pick random next member (only within session)
+    if (sessionActive && remaining.length > 0) {
+      const pick = remaining[Math.floor(Math.random() * remaining.length)];
+      setNextMemberId(pick);
+    } else if (sessionActive && remaining.length === 0) {
+      setAllDone(true);
+    }
     setSaved(true);
-    setTimeout(() => navigate(`/group/${gId}`), 1200);
   };
 
   const fullName = miembro
@@ -107,6 +154,31 @@ export function PresentationView() {
           <ThemeToggleButton />
         </div>
       </header>
+
+      {/* Session progress bar — only shown when a session is active */}
+      {sessionActive && (
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-3xl mx-auto px-6 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-5">
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Sesión</span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-bold text-green-600">✓ {sessionCompleted} presentados</span>
+                <span className="text-gray-300">·</span>
+                <span className="text-sm font-bold text-indigo-600">
+                  {sessionTotal - sessionCompleted} restantes de {sessionTotal}
+                </span>
+              </div>
+            </div>
+            {/* Mini progress bar */}
+            <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-2 bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-500"
+                style={{ width: `${sessionTotal > 0 ? (sessionCompleted / sessionTotal) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main */}
       <main className="max-w-3xl mx-auto px-6 py-8 space-y-6">
@@ -175,31 +247,52 @@ export function PresentationView() {
           )}
         </section>
 
-        {/* Botón guardar */}
+        {/* Botón guardar / acciones post-guardado */}
         <div className="flex justify-center pt-2">
-          <button
-            onClick={handleSave}
-            disabled={saved || !isComplete}
-            className={`flex items-center gap-2.5 font-bold px-8 py-3 rounded-xl shadow-md transition-all
-              ${saved
-                ? 'bg-green-500 text-white cursor-default scale-95'
-                : !isComplete
+          {!saved ? (
+            <button
+              onClick={handleSave}
+              disabled={!isComplete}
+              className={`flex items-center gap-2.5 font-bold px-8 py-3 rounded-xl shadow-md transition-all
+                ${!isComplete
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-lg hover:scale-105 active:scale-100'
-              }`}
-          >
-            {saved ? (
-              <>
-                <CheckCircle2 className="w-5 h-5" />
-                ¡Guardado!
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5" />
-                Guardar puntaje
-              </>
-            )}
-          </button>
+                }`}
+            >
+              <Save className="w-5 h-5" />
+              Guardar puntaje
+            </button>
+          ) : (
+            <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+              {/* Confirmación del guardado */}
+              <div className="flex items-center gap-2 text-green-600 font-bold text-lg">
+                <CheckCircle2 className="w-6 h-6" />
+                ¡Puntaje guardado!
+              </div>
+
+              {sessionActive && (
+                allDone ? (
+                  <p className="text-indigo-600 font-semibold text-sm">🎉 ¡Todos los miembros han presentado!</p>
+                ) : nextMemberId !== null ? (
+                  <button
+                    onClick={() => navigate(`/group/${gId}/present/${nextMemberId}`)}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all hover:scale-105"
+                  >
+                    Siguiente presentación
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                ) : null
+              )}
+
+              <button
+                onClick={() => navigate(`/group/${gId}`)}
+                className="flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Volver al grupo
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

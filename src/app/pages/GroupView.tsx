@@ -174,6 +174,12 @@ export function GroupView() {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isDeleteGroupConfirmOpen, setIsDeleteGroupConfirmOpen] = useState(false);
 
+  // ── Sesión de presentaciones ───────────────────────────────────────────────
+  const SESSION_KEY = `pres_session_${gId}`;
+  const [sessionActive, setSessionActive] = useState(false);
+  const [sessionCompleted, setSessionCompleted] = useState<number[]>([]);
+  const [sessionTotal, setSessionTotal] = useState(0);
+
   const loadGroupData = useCallback(() => {
     const grupo = GruposDB.getById(gId);
     if (grupo) {
@@ -194,7 +200,19 @@ export function GroupView() {
       return;
     }
     loadGroupData();
-  }, [navigate, loadGroupData]);
+    // Restore session from sessionStorage
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (raw) {
+      try {
+        const s = JSON.parse(raw);
+        if (s.active) {
+          setSessionActive(true);
+          setSessionCompleted(s.completedIds ?? []);
+          setSessionTotal(s.totalCount ?? 0);
+        }
+      } catch {/* ignore */ }
+    }
+  }, [navigate, loadGroupData, SESSION_KEY]);
 
   // ── Grupo ──────────────────────────────────────────────────────────────────
 
@@ -301,8 +319,35 @@ export function GroupView() {
     setIsAddRubricDialogOpen(true);
   };
 
+  const handleEndSession = () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    setSessionActive(false);
+    setSessionCompleted([]);
+    setSessionTotal(0);
+  };
+
   const handleStartPresentations = () => {
-    console.log('Iniciar presentaciones');
+    if (members.length === 0) return;
+
+    let completedIds = sessionCompleted;
+    let total = sessionTotal;
+
+    if (!sessionActive) {
+      // Start a new session
+      completedIds = [];
+      total = members.length;
+      setSessionActive(true);
+      setSessionCompleted([]);
+      setSessionTotal(total);
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ active: true, completedIds: [], totalCount: total }));
+    }
+
+    // Pick a random member who hasn't presented yet
+    const remaining = members.filter((m) => !completedIds.includes(m.id));
+    if (remaining.length === 0) return; // All done
+
+    const randomMember = remaining[Math.floor(Math.random() * remaining.length)];
+    navigate(`/group/${gId}/present/${randomMember.id}`);
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -505,12 +550,42 @@ export function GroupView() {
         </div>
 
         {/* Start Presentations Button */}
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-4">
+          {/* Session counter — only shows when a session is active */}
+          {sessionActive && (
+            <div className="flex items-center gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-8 py-4">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Presentados</p>
+                <p className="text-3xl font-black text-green-600">{sessionCompleted.length}</p>
+              </div>
+              <div className="h-10 w-px bg-gray-200" />
+              <div className="text-center">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Restantes</p>
+                <p className="text-3xl font-black text-indigo-600">
+                  {sessionTotal - sessionCompleted.length}/{sessionTotal}
+                </p>
+              </div>
+              <div className="h-10 w-px bg-gray-200" />
+              <button
+                onClick={handleEndSession}
+                className="text-sm text-gray-500 hover:text-red-600 font-medium transition-colors"
+              >
+                Finalizar sesión
+              </button>
+            </div>
+          )}
+
           <button
             onClick={handleStartPresentations}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-xl py-6 px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl"
+            disabled={sessionActive && sessionCompleted.length >= sessionTotal}
+            className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-xl py-6 px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl
+              ${sessionActive && sessionCompleted.length >= sessionTotal ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}`}
           >
-            Iniciar Presentaciones
+            {sessionActive
+              ? sessionCompleted.length >= sessionTotal
+                ? '✓ Todos presentaron'
+                : 'Siguiente presentación'
+              : 'Iniciar Presentaciones'}
           </button>
         </div>
       </main>
