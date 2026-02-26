@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw } from 'lucide-react';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
 import {
@@ -10,6 +10,16 @@ import {
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/alert-dialog';
+import {
   GruposDB,
   MiembrosDB,
   ReglasDB,
@@ -17,13 +27,14 @@ import {
   type Regla,
 } from '../lib/db';
 
-// ── Tipos locales (compatibles con los diálogos existentes) ──────────────────
+// ── Tipos locales ──────────────────────────────────────────────────────────────
 
 interface MemberUI {
   id: number;
   listNumber: number;
   name: string;
   avatar: string;
+  puntaje: number;
 }
 
 interface RubricItemUI {
@@ -36,13 +47,13 @@ interface RubricItemUI {
 // ── Helpers de conversión ────────────────────────────────────────────────────
 
 function miembroToUI(m: Miembro): MemberUI {
-  const avatar =
-    ((m.nombre[0] ?? '') + (m.apPaterno[0] ?? '')).toUpperCase();
+  const avatar = ((m.nombre[0] ?? '') + (m.apPaterno[0] ?? '')).toUpperCase();
   return {
     id: m.id,
     listNumber: m.idLista,
     name: `${m.nombre} ${m.apPaterno} ${m.apMaterno}`.trim(),
     avatar,
+    puntaje: m.puntaje ?? 0,
   };
 }
 
@@ -50,7 +61,144 @@ function reglaToUI(r: Regla): RubricItemUI {
   return { id: r.id, title: r.titulo, description: r.descripcion, points: r.puntaje };
 }
 
-// ── Componente ───────────────────────────────────────────────────────────────
+// ── Sub-componente: fila de miembro con puntaje editable ─────────────────────
+
+interface MemberRowProps {
+  member: MemberUI;
+  onEdit: (m: MemberUI) => void;
+  onDelete: (id: number) => void;
+  onUpdatePuntaje: (id: number, puntaje: number) => void;
+}
+
+function MemberRow({ member, onEdit, onDelete, onUpdatePuntaje }: MemberRowProps) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(member.puntaje.toString());
+
+  const handleConfirm = () => {
+    const val = parseInt(draft, 10);
+    if (!isNaN(val) && val >= 0) {
+      onUpdatePuntaje(member.id, val);
+    }
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setDraft(member.puntaje.toString());
+    setEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleConfirm();
+    if (e.key === 'Escape') handleCancel();
+  };
+
+  return (
+    <div className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-3">
+      {/* Info del miembro */}
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold text-gray-700">
+          {member.listNumber}
+        </div>
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+          {member.avatar}
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-semibold text-gray-900 text-sm truncate">{member.name}</h3>
+        </div>
+      </div>
+
+      {/* Puntaje editable */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {editing ? (
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min="0"
+              value={draft}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDraft(e.target.value)}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              className="w-16 px-2 py-1 text-sm border border-blue-400 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-xs text-gray-500">pts</span>
+            <button
+              onClick={handleConfirm}
+              className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
+              title="Confirmar"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCancel}
+              className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+              title="Cancelar"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => { setDraft(member.puntaje.toString()); setEditing(true); }}
+            className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-full text-sm transition-colors cursor-pointer"
+            title="Editar puntaje"
+          >
+            <span>{member.puntaje}</span>
+            <span className="text-indigo-400 font-normal text-xs">pts</span>
+          </button>
+        )}
+
+        {/* Menú de acciones */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
+              <MoreVertical className="w-4 h-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32 bg-white">
+            <DropdownMenuItem
+              onClick={() => onEdit(member)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Edit2 className="w-4 h-4 text-blue-600" />
+              <span>Editar</span>
+            </DropdownMenuItem>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Eliminar</span>
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-white">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Eliminar miembro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      ¿Estás seguro de que deseas eliminar a **{member.name}**? Esta acción no se puede deshacer.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(member.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Eliminar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+}
+
+// ── Componente principal ─────────────────────────────────────────────────────
 
 export function GroupView() {
   const { groupId } = useParams();
@@ -65,6 +213,8 @@ export function GroupView() {
   const [editingMember, setEditingMember] = useState<MemberUI | null>(null);
   const [isAddRubricDialogOpen, setIsAddRubricDialogOpen] = useState(false);
   const [editingRubricItem, setEditingRubricItem] = useState<RubricItemUI | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [isDeleteGroupConfirmOpen, setIsDeleteGroupConfirmOpen] = useState(false);
 
   const loadGroupData = useCallback(() => {
     const grupo = GruposDB.getById(gId);
@@ -88,17 +238,13 @@ export function GroupView() {
     loadGroupData();
   }, [navigate, loadGroupData]);
 
-  // ── Navegación ─────────────────────────────────────────────────────────────
+  // ── Grupo ──────────────────────────────────────────────────────────────────
 
   const handleBack = () => navigate('/dashboard');
 
-  // ── Grupo ──────────────────────────────────────────────────────────────────
-
   const handleDeleteGroup = () => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este grupo? Esta acción no se puede deshacer.')) {
-      GruposDB.delete(gId);
-      navigate('/dashboard');
-    }
+    GruposDB.delete(gId);
+    navigate('/dashboard');
   };
 
   // ── Miembros ───────────────────────────────────────────────────────────────
@@ -109,7 +255,6 @@ export function GroupView() {
   };
 
   const onAddMember = (data: Omit<MemberUI, 'id'>) => {
-    // Desglosar nombre compuesto para almacenarlo normalizado
     const parts = data.name.split(' ');
     MiembrosDB.create(gId, {
       idLista: data.listNumber,
@@ -122,6 +267,7 @@ export function GroupView() {
 
   const onEditMember = (updated: MemberUI) => {
     const parts = updated.name.split(' ');
+    const current = MiembrosDB.getByGrupo(gId).find((m) => m.id === updated.id);
     const miembro: Miembro = {
       id: updated.id,
       grupoId: gId,
@@ -129,22 +275,32 @@ export function GroupView() {
       nombre: parts[0] ?? '',
       apPaterno: parts[1] ?? '',
       apMaterno: parts.slice(2).join(' '),
+      puntaje: current?.puntaje ?? 0,
     };
     MiembrosDB.update(miembro);
     setEditingMember(null);
     loadGroupData();
   };
 
+  const handleUpdatePuntaje = (id: number, puntaje: number) => {
+    MiembrosDB.updatePuntaje(id, puntaje);
+    loadGroupData();
+  };
+
   const handleDeleteMember = (id: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este miembro?')) {
-      MiembrosDB.delete(id, gId);
-      loadGroupData();
-    }
+    MiembrosDB.delete(id, gId);
+    loadGroupData();
   };
 
   const handleOpenEditMemberDialog = (member: MemberUI) => {
     setEditingMember(member);
     setIsAddMemberDialogOpen(true);
+  };
+
+  const handleResetScores = () => {
+    MiembrosDB.resetPuntajesByGrupo(gId);
+    loadGroupData();
+    setIsResetConfirmOpen(false);
   };
 
   // ── Reglas de rúbrica ──────────────────────────────────────────────────────
@@ -220,13 +376,58 @@ export function GroupView() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={handleDeleteGroup}
-                className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                title="Eliminar grupo"
-              >
-                <Trash2 className="w-5 h-5" />
-              </button>
+              <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
+                <button
+                  onClick={() => setIsResetConfirmOpen(true)}
+                  className="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                  title="Resetear puntajes"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+                <AlertDialogContent className="bg-white">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción reseteará a 0 el puntaje de **todos** los miembros del grupo "{groupName}". Esta acción no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleResetScores}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                    >
+                      Sí, resetear puntajes
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
+                <button
+                  onClick={() => setIsDeleteGroupConfirmOpen(true)}
+                  className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Eliminar grupo"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+                <AlertDialogContent className="bg-white">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Eliminar este grupo?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción eliminará el grupo "{groupName}", todos sus miembros y sus reglas de rúbrica. Esta acción no se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteGroup}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Sí, eliminar grupo
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
@@ -252,46 +453,13 @@ export function GroupView() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
               <div className="divide-y divide-gray-200">
                 {members.map((member) => (
-                  <div
+                  <MemberRow
                     key={member.id}
-                    className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold text-gray-700">
-                        {member.listNumber}
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                        {member.avatar}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 text-sm">{member.name}</h3>
-                      </div>
-                    </div>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32 bg-white">
-                        <DropdownMenuItem
-                          onClick={() => handleOpenEditMemberDialog(member)}
-                          className="flex items-center gap-2 cursor-pointer"
-                        >
-                          <Edit2 className="w-4 h-4 text-blue-600" />
-                          <span>Editar</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteMember(member.id)}
-                          className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span>Eliminar</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                    member={member}
+                    onEdit={handleOpenEditMemberDialog}
+                    onDelete={handleDeleteMember}
+                    onUpdatePuntaje={handleUpdatePuntaje}
+                  />
                 ))}
               </div>
             </div>

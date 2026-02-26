@@ -1,40 +1,27 @@
 version: '3.8'
 
 services:
-  # React Application Service
-  exposite-app:
+  # Development Service with Hot Reload
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: exposite-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules # Don't overwrite node_modules in container with local dev ones
+    environment:
+      - VITE_WATCH_USE_POLLING=true # Useful for Docker volumes hot reload on some systems
+    stdin_open: true # needed for Vite in some environments
+    tty: true
+
+  # Production Service (Current configuration)
+  prod:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: exposite-prod
     ports:
       - "8080:80"
-    depends_on:
-      - db
-    environment:
-      # These variables can be used if your React app needs them (via process.env)
-      - VITE_API_URL=http://localhost:8080/api
-    networks:
-      - app-network
-
-  # PostgreSQL Database Service
-  db:
-    image: postgres:15-alpine
-    container_name: postgres_db
-    restart: always
-    environment:
-      - POSTGRES_USER=user_exposite
-      - POSTGRES_PASSWORD=pass_exposite
-      - POSTGRES_DB=exposite_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  postgres_data:

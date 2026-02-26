@@ -3,7 +3,7 @@
  *
  * Tablas simuladas:
  *   grupos   : { id, nombre, listaMiembros: number[], listaRubrica: number[] }
- *   miembros : { id, idLista, nombre, apPaterno, apMaterno, grupoId }
+ *   miembros : { id, idLista, nombre, apPaterno, apMaterno, puntaje, grupoId }
  *   reglas   : { id, titulo, descripcion, puntaje, grupoId }
  */
 
@@ -23,6 +23,7 @@ export interface Miembro {
   nombre: string;
   apPaterno: string;
   apMaterno: string;
+  puntaje: number;  // puntaje individual del miembro (0 por defecto)
 }
 
 export interface Regla {
@@ -73,17 +74,17 @@ export function initializeDB(): void {
   ];
 
   const miembrosIniciales: Miembro[] = [
-    { id: 1,  grupoId: 1, idLista: 1,  nombre: 'Carlos',  apPaterno: 'Rodríguez', apMaterno: '' },
-    { id: 2,  grupoId: 1, idLista: 2,  nombre: 'Ana',     apPaterno: 'García',    apMaterno: '' },
-    { id: 3,  grupoId: 1, idLista: 3,  nombre: 'Luis',    apPaterno: 'Martínez',  apMaterno: '' },
-    { id: 4,  grupoId: 1, idLista: 4,  nombre: 'María',   apPaterno: 'López',     apMaterno: '' },
-    { id: 5,  grupoId: 1, idLista: 5,  nombre: 'Pedro',   apPaterno: 'Sánchez',   apMaterno: '' },
-    { id: 6,  grupoId: 1, idLista: 6,  nombre: 'Laura',   apPaterno: 'Torres',    apMaterno: '' },
-    { id: 7,  grupoId: 1, idLista: 7,  nombre: 'Diego',   apPaterno: 'Ramírez',   apMaterno: '' },
-    { id: 8,  grupoId: 1, idLista: 8,  nombre: 'Sofía',   apPaterno: 'Flores',    apMaterno: '' },
-    { id: 9,  grupoId: 2, idLista: 1,  nombre: 'Juan',    apPaterno: 'Pérez',     apMaterno: '' },
-    { id: 10, grupoId: 2, idLista: 2,  nombre: 'Carmen',  apPaterno: 'Ruiz',      apMaterno: '' },
-    { id: 11, grupoId: 2, idLista: 3,  nombre: 'Alberto', apPaterno: 'Díaz',      apMaterno: '' },
+    { id: 1,  grupoId: 1, idLista: 1,  nombre: 'Carlos',  apPaterno: 'Rodríguez', apMaterno: '', puntaje: 0 },
+    { id: 2,  grupoId: 1, idLista: 2,  nombre: 'Ana',     apPaterno: 'García',    apMaterno: '', puntaje: 0 },
+    { id: 3,  grupoId: 1, idLista: 3,  nombre: 'Luis',    apPaterno: 'Martínez',  apMaterno: '', puntaje: 0 },
+    { id: 4,  grupoId: 1, idLista: 4,  nombre: 'María',   apPaterno: 'López',     apMaterno: '', puntaje: 0 },
+    { id: 5,  grupoId: 1, idLista: 5,  nombre: 'Pedro',   apPaterno: 'Sánchez',   apMaterno: '', puntaje: 0 },
+    { id: 6,  grupoId: 1, idLista: 6,  nombre: 'Laura',   apPaterno: 'Torres',    apMaterno: '', puntaje: 0 },
+    { id: 7,  grupoId: 1, idLista: 7,  nombre: 'Diego',   apPaterno: 'Ramírez',   apMaterno: '', puntaje: 0 },
+    { id: 8,  grupoId: 1, idLista: 8,  nombre: 'Sofía',   apPaterno: 'Flores',    apMaterno: '', puntaje: 0 },
+    { id: 9,  grupoId: 2, idLista: 1,  nombre: 'Juan',    apPaterno: 'Pérez',     apMaterno: '', puntaje: 0 },
+    { id: 10, grupoId: 2, idLista: 2,  nombre: 'Carmen',  apPaterno: 'Ruiz',      apMaterno: '', puntaje: 0 },
+    { id: 11, grupoId: 2, idLista: 3,  nombre: 'Alberto', apPaterno: 'Díaz',      apMaterno: '', puntaje: 0 },
   ];
 
   const reglasIniciales: Regla[] = [
@@ -144,9 +145,9 @@ export const MiembrosDB = {
       .sort((a, b) => a.idLista - b.idLista);
   },
 
-  create(grupoId: number, data: Omit<Miembro, 'id' | 'grupoId'>): Miembro {
+  create(grupoId: number, data: Omit<Miembro, 'id' | 'grupoId' | 'puntaje'>): Miembro {
     const table = loadTable<Miembro>(KEYS.miembros);
-    const miembro: Miembro = { id: nextId(table), grupoId, ...data };
+    const miembro: Miembro = { id: nextId(table), grupoId, puntaje: 0, ...data };
     saveTable(KEYS.miembros, [...table, miembro]);
 
     // Actualizar la lista del grupo
@@ -155,6 +156,13 @@ export const MiembrosDB = {
       GruposDB.update({ ...grupo, listaMiembros: [...grupo.listaMiembros, miembro.id] });
     }
     return miembro;
+  },
+
+  updatePuntaje(id: number, puntaje: number): void {
+    const table = loadTable<Miembro>(KEYS.miembros).map((m) =>
+      m.id === id ? { ...m, puntaje } : m
+    );
+    saveTable(KEYS.miembros, table);
   },
 
   update(updated: Miembro): void {
@@ -177,6 +185,13 @@ export const MiembrosDB = {
         listaMiembros: grupo.listaMiembros.filter((mid) => mid !== id),
       });
     }
+  },
+
+  resetPuntajesByGrupo(grupoId: number): void {
+    const table = loadTable<Miembro>(KEYS.miembros).map((m) =>
+      m.grupoId === grupoId ? { ...m, puntaje: 0 } : m
+    );
+    saveTable(KEYS.miembros, table);
   },
 };
 

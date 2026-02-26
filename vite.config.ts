@@ -19,4 +19,12 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+  server: {
+    watch: {
+      usePolling: true, // Enable polling for reliable hot reload in Docker volumes
+    },
+    host: true, // Listen on all addresses
+    strictPort: true,
+    port: 5173,
+  },
 })
