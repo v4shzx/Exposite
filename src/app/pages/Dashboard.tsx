@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router';
 import { Plus, LogOut } from 'lucide-react';
 import { GroupCard } from '../components/GroupCard';
 import { AddGroupDialog } from '../components/AddGroupDialog';
+import { GruposDB, MiembrosDB, initializeDB, type Grupo } from '../lib/db';
 
-interface Group {
+interface GroupDisplay {
   id: number;
   name: string;
   memberCount: number;
@@ -13,41 +14,42 @@ interface Group {
 export function Dashboard() {
   const [username, setUsername] = useState('Usuario');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [groups, setGroups] = useState<Group[]>([
-    { id: 1, name: 'Equipo de Desarrollo', memberCount: 8 },
-    { id: 2, name: 'Diseño UI/UX', memberCount: 5 },
-    { id: 3, name: 'Marketing Digital', memberCount: 12 },
-    { id: 4, name: 'Gestión de Proyectos', memberCount: 6 },
-  ]);
+  const [groups, setGroups] = useState<GroupDisplay[]>([]);
   const navigate = useNavigate();
 
+  const loadGroups = () => {
+    const grupos = GruposDB.getAll();
+    const display: GroupDisplay[] = grupos.map((g: Grupo) => ({
+      id: g.id,
+      name: g.nombre,
+      memberCount: MiembrosDB.getByGrupo(g.id).length,
+    }));
+    setGroups(display);
+  };
+
   useEffect(() => {
-    // Verificar si el usuario está autenticado
     const isAuthenticated = localStorage.getItem('isAuthenticated');
     if (!isAuthenticated) {
       navigate('/');
       return;
     }
 
-    // Obtener el nombre de usuario
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setUsername(storedUsername);
     }
+
+    // Inicializar la BD con datos de ejemplo si está vacía
+    initializeDB();
+    loadGroups();
   }, [navigate]);
 
   const handleAddGroup = (name: string) => {
-    const newGroup: Group = {
-      id: Date.now(),
-      name,
-      memberCount: 1,
-    };
-    setGroups([...groups, newGroup]);
+    GruposDB.create(name);
+    loadGroups();
   };
 
   const handleJoinGroup = (groupId: number) => {
-    console.log('Ingresar al grupo:', groupId);
-    // Aquí puedes implementar la lógica para ingresar al grupo
     navigate(`/group/${groupId}`);
   };
 
