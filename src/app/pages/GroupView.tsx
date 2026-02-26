@@ -107,15 +107,15 @@ function MemberRow({ member, onEdit, onDelete, onPresent }: MemberRowProps) {
           <DropdownMenuContent align="end" className="w-32 bg-white">
             <DropdownMenuItem
               onClick={() => onEdit(member)}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
             >
-              <Edit2 className="w-4 h-4 text-blue-600" />
+              <Edit2 className="w-4 h-4" />
               <span>Editar</span>
             </DropdownMenuItem>
 
             <DropdownMenuItem
               onClick={() => onPresent(member)}
-              className="flex items-center gap-2 cursor-pointer text-green-600 focus:text-green-700"
+              className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>Presentar</span>
@@ -125,7 +125,7 @@ function MemberRow({ member, onEdit, onDelete, onPresent }: MemberRowProps) {
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem
                   onSelect={(e: Event) => e.preventDefault()}
-                  className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-700"
+                  className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Eliminar</span>
@@ -521,14 +521,14 @@ export function GroupView() {
                         <DropdownMenuContent align="end" className="w-32 bg-white">
                           <DropdownMenuItem
                             onClick={() => handleOpenEditRubricDialog(item)}
-                            className="flex items-center gap-2 cursor-pointer"
+                            className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
                           >
-                            <Edit2 className="w-4 h-4 text-blue-600" />
+                            <Edit2 className="w-4 h-4" />
                             <span>Editar</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleDeleteRubricItem(item.id)}
-                            className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-700"
+                            className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
                           >
                             <Trash2 className="w-4 h-4" />
                             <span>Eliminar</span>
