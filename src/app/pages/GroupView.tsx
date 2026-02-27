@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play } from 'lucide-react';
 import { AddMemberDialog } from '../components/AddMemberDialog';
@@ -28,6 +28,13 @@ import {
   type Miembro,
   type Regla,
 } from '../lib/db';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 
 // ── Tipos locales ──────────────────────────────────────────────────────────────
 
@@ -173,6 +180,7 @@ export function GroupView() {
   const [editingRubricItem, setEditingRubricItem] = useState<RubricItemUI | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isDeleteGroupConfirmOpen, setIsDeleteGroupConfirmOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<'list' | 'score'>('list');
 
   // ── Sesión de presentaciones ───────────────────────────────────────────────
   const SESSION_KEY = `pres_session_${gId}`;
@@ -350,6 +358,17 @@ export function GroupView() {
     navigate(`/group/${gId}/present/${randomMember.id}`);
   };
 
+  const sortedMembers = useMemo(() => {
+    return [...members].sort((a, b) => {
+      if (sortBy === 'score') {
+        const scoreDiff = b.puntaje - a.puntaje;
+        if (scoreDiff !== 0) return scoreDiff;
+        return a.listNumber - b.listNumber;
+      }
+      return a.listNumber - b.listNumber;
+    });
+  }, [members, sortBy]);
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -446,7 +465,20 @@ export function GroupView() {
           {/* Members Section */}
           <section>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Miembros</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-xl font-semibold text-gray-900">Miembros</h2>
+                <div className="w-48">
+                  <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
+                    <SelectTrigger className="bg-white">
+                      <SelectValue placeholder="Ordenar por" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="list">Orden de lista</SelectItem>
+                      <SelectItem value="score">Puntaje mayor</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <button
                 onClick={handleAddMember}
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
@@ -458,7 +490,7 @@ export function GroupView() {
 
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
               <div className="divide-y divide-gray-200">
-                {members.map((member) => (
+                {sortedMembers.map((member) => (
                   <MemberRow
                     key={member.id}
                     member={member}

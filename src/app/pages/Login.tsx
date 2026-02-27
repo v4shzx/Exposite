@@ -14,11 +14,12 @@ export function Login() {
     e.preventDefault();
     setError('');
 
+    /*
     if (!username.trim() || !password.trim()) {
       setError('Por favor, completa todos los campos');
       return;
     }
-
+    */
     // Simulación de login - guarda el usuario en localStorage
     localStorage.setItem('username', username);
     localStorage.setItem('isAuthenticated', 'true');
@@ -55,7 +56,7 @@ export function Login() {
             />
           </div>
 
-          <div>
+          {/*div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Contraseña
             </label>
@@ -80,7 +81,7 @@ export function Login() {
                 )}
               </button>
             </div>
-          </div>
+          </div>*/}
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
