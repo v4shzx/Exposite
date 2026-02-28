@@ -81,12 +81,12 @@ export function Dashboard() {
       </Sidebar>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+      <div className="flex-1 flex flex-col min-h-screen md:h-screen overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-4 pt-16 md:pt-8 md:p-8">
           <div className="max-w-6xl mx-auto space-y-10">
             {/* Page Header Area */}
             <div>
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight">¡Hola! {username}</h1>
+              <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">¡Hola! {username}</h1>
               <div className="mt-6">
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Mis Grupos</h2>
                 <p className="text-gray-500 font-medium">
@@ -108,7 +108,7 @@ export function Dashboard() {
             </div>
 
             {groups.length === 0 && (
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-16 text-center">
+              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sm:p-16 text-center">
                 <div className="bg-gray-50 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <Plus className="w-10 h-10 text-gray-300" />
                 </div>

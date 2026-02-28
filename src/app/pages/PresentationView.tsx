@@ -134,7 +134,7 @@ export function PresentationView() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(`/group/${gId}`)}
@@ -143,7 +143,7 @@ export function PresentationView() {
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Volver al grupo</span>
             </button>
-            <div className="h-8 w-px bg-gray-300" />
+            <div className="hidden sm:block h-8 w-px bg-gray-300" />
             <div>
               <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
                 {grupo?.nombre ?? 'Grupo'}
@@ -158,7 +158,7 @@ export function PresentationView() {
       {/* Session progress bar — only shown when a session is active */}
       {sessionActive && (
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-3xl mx-auto px-6 py-2 flex items-center justify-between">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
             <div className="flex items-center gap-5">
               <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Sesión</span>
               <div className="flex items-center gap-3">
@@ -170,7 +170,7 @@ export function PresentationView() {
               </div>
             </div>
             {/* Mini progress bar */}
-            <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full sm:w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="h-2 bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-500"
                 style={{ width: `${sessionTotal > 0 ? (sessionCompleted / sessionTotal) * 100 : 0}%` }}
@@ -181,10 +181,10 @@ export function PresentationView() {
       )}
 
       {/* Main */}
-      <main className="max-w-3xl mx-auto px-6 py-8 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {/* Tarjeta del presentador */}
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-6 shadow-lg text-white flex items-center gap-5">
+        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-5 sm:p-6 shadow-lg text-white flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
           <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold shrink-0">
             {miembro
               ? ((miembro.nombre[0] ?? '') + (miembro.apPaterno[0] ?? '')).toUpperCase()
@@ -216,7 +216,7 @@ export function PresentationView() {
               {scores.map((s) => (
                 <div
                   key={s.reglaId}
-                  className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex items-center gap-4"
+                  className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
                 >
                   {/* Info de la regla */}
                   <div className="flex-1 min-w-0">

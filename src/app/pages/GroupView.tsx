@@ -502,8 +502,8 @@ export function GroupView() {
       </Sidebar>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+      <div className="flex-1 flex flex-col min-h-screen md:h-screen overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-4 pt-16 md:pt-8 md:p-8">
           <div className="max-w-6xl mx-auto space-y-10">
             <div>
               <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">{groupName}</h1>
@@ -517,10 +517,10 @@ export function GroupView() {
 
             {/* Members Section */}
             <section>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
                 <div className="flex items-center gap-4">
                   <h2 className="text-xl font-semibold text-gray-900">Miembros</h2>
-                  <div className="w-48">
+                  <div className="w-40 sm:w-48">
                     <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
                       <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Ordenar por" />
@@ -534,7 +534,7 @@ export function GroupView() {
                 </div>
                 <button
                   onClick={handleAddMember}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md w-full sm:w-auto"
                 >
                   <UserPlus className="w-5 h-5" />
                   Añadir Miembro
@@ -565,7 +565,7 @@ export function GroupView() {
 
             {/* Rubric Rules Section */}
             <section>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl font-semibold text-gray-900">Reglas de Rúbrica</h2>
                   <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
@@ -574,7 +574,7 @@ export function GroupView() {
                 </div>
                 <button
                   onClick={handleAddRubricItem}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md w-full sm:w-auto"
                 >
                   <Plus className="w-5 h-5" />
                   Añadir Regla
@@ -638,19 +638,19 @@ export function GroupView() {
           <div className="flex flex-col items-center gap-4">
             {/* Session counter — only shows when a session is active */}
             {sessionActive && (
-              <div className="flex items-center gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-8 py-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-6 sm:px-8 py-4">
                 <div className="text-center">
                   <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Presentados</p>
                   <p className="text-3xl font-black text-green-600">{sessionCompleted.length}</p>
                 </div>
-                <div className="h-10 w-px bg-gray-200" />
+                <div className="hidden sm:block h-10 w-px bg-gray-200" />
                 <div className="text-center">
                   <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Restantes</p>
                   <p className="text-3xl font-black text-indigo-600">
                     {sessionTotal - sessionCompleted.length}/{sessionTotal}
                   </p>
                 </div>
-                <div className="h-10 w-px bg-gray-200" />
+                <div className="hidden sm:block h-10 w-px bg-gray-200" />
                 <button
                   onClick={handleEndSession}
                   className="text-sm text-gray-500 hover:text-red-600 font-medium transition-colors"
@@ -663,7 +663,7 @@ export function GroupView() {
             <button
               onClick={handleStartPresentations}
               disabled={sessionActive && sessionCompleted.length >= sessionTotal}
-              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-xl py-6 px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl
+              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg sm:text-xl py-4 px-8 sm:py-6 sm:px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl w-full sm:w-auto
               ${sessionActive && sessionCompleted.length >= sessionTotal ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}`}
             >
               {sessionActive
