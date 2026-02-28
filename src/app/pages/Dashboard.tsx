@@ -59,6 +59,12 @@ export function Dashboard() {
     localStorage.removeItem('username');
     navigate('/');
   };
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
@@ -86,7 +92,7 @@ export function Dashboard() {
           <div className="max-w-6xl mx-auto space-y-10">
             {/* Page Header Area */}
             <div>
-              <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">¡Hola! {username}</h1>
+              <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">{getGreeting()}, {username}</h1>
               <div className="mt-6">
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Mis Grupos</h2>
                 <p className="text-gray-500 font-medium">

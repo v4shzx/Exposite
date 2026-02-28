@@ -175,21 +175,21 @@ export function PresentationView() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {/* Tarjeta del presentador */}
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl p-5 sm:p-6 shadow-lg text-white flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
-          <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold shrink-0">
+        <div className="bg-purple-700 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
+          <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold text-white shrink-0">
             {miembro
               ? ((miembro.nombre[0] ?? '') + (miembro.apPaterno[0] ?? '')).toUpperCase()
               : '?'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-indigo-200 text-sm font-medium mb-0.5">Presentando ahora</p>
-            <h2 className="text-2xl font-bold truncate">{fullName}</h2>
+            <p className="text-purple-200 text-xs font-semibold uppercase tracking-wider mb-0.5">Presentando ahora</p>
+            <h2 className="text-2xl font-bold text-white truncate">{fullName}</h2>
           </div>
           {/* Indicador de puntaje total */}
-          <div className="text-right shrink-0">
-            <p className="text-indigo-200 text-xs">Puntaje</p>
-            <p className="text-3xl font-black">{totalObtenido}</p>
-            <p className="text-indigo-300 text-xs">/ {totalMax} pts</p>
+          <div className="text-center sm:text-right shrink-0">
+            <p className="text-purple-200 text-xs font-semibold uppercase tracking-wider">Puntaje</p>
+            <p className="text-3xl font-black text-white">{totalObtenido}</p>
+            <p className="text-purple-300 text-xs">/ {totalMax} pts</p>
           </div>
         </div>
 
@@ -267,7 +267,7 @@ export function PresentationView() {
                 ) : nextMemberId !== null ? (
                   <button
                     onClick={() => navigate(`/group/${gId}/present/${nextMemberId}`)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all hover:scale-105"
+                    className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all hover:scale-105"
                   >
                     Siguiente presentación
                     <ArrowRight className="w-5 h-5" />

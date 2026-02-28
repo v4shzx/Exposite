@@ -89,7 +89,7 @@ function MemberRow({ member, onEdit, onDelete, onPresent }: MemberRowProps) {
         <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-gray-200 rounded text-xs font-bold text-gray-700">
           {member.listNumber}
         </div>
-        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold text-sm">
           {member.avatar}
         </div>
         <div className="min-w-0">
