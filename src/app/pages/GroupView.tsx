@@ -5,7 +5,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
-import { Sidebar, SidebarSection, SidebarSeparator } from '../components/Sidebar';
+import { Sidebar, SidebarSection, SidebarSeparator, SidebarButton } from '../components/Sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -433,40 +433,32 @@ export function GroupView() {
       {/* Sidebar */}
       <Sidebar>
         <SidebarSection>
-          <button
+          <SidebarButton
+            icon={<ArrowLeft className="w-5 h-5 flex-shrink-0" />}
+            label="Volver"
             onClick={handleBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Volver</span>
-          </button>
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
+          />
         </SidebarSection>
 
         <SidebarSeparator />
 
         <SidebarSection title="Gestión del Grupo">
-          <button
+          <SidebarButton
+            icon={<div className="bg-green-600 p-1.5 rounded-lg text-white flex-shrink-0"><FileDown className="w-4 h-4" /></div>}
+            label="Exportar PDF"
             onClick={handleExportPDF}
-            className="flex items-center gap-3 w-full text-left bg-green-50 text-green-700 hover:bg-green-100 font-semibold py-3 px-4 rounded-xl transition-all border border-green-100"
-            title="Exportar a PDF"
-          >
-            <div className="bg-green-600 p-1.5 rounded-lg text-white">
-              <FileDown className="w-4 h-4" />
-            </div>
-            <span>Exportar PDF</span>
-          </button>
+            className="bg-green-50 text-green-700 hover:bg-green-100 border-green-100"
+          />
 
           <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
-            <button
+            <SidebarButton
+              icon={<div className="bg-indigo-600 p-1.5 rounded-lg text-white flex-shrink-0"><RotateCcw className="w-4 h-4" /></div>}
+              label="Resetear"
               onClick={() => setIsResetConfirmOpen(true)}
-              className="flex items-center gap-3 w-full text-left bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold py-3 px-4 rounded-xl transition-all border border-indigo-100"
+              className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100"
               title="Resetear puntajes"
-            >
-              <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
-                <RotateCcw className="w-4 h-4" />
-              </div>
-              <span>Resetear</span>
-            </button>
+            />
             <AlertDialogContent className="bg-white">
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
@@ -476,10 +468,7 @@ export function GroupView() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleResetScores}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white border-0"
-                >
+                <AlertDialogAction onClick={handleResetScores} className="bg-indigo-600 hover:bg-indigo-700 text-white border-0">
                   Sí, resetear puntajes
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -487,16 +476,13 @@ export function GroupView() {
           </AlertDialog>
 
           <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
-            <button
+            <SidebarButton
+              icon={<div className="bg-red-600 p-1.5 rounded-lg text-white flex-shrink-0"><Trash2 className="w-4 h-4" /></div>}
+              label="Eliminar Grupo"
               onClick={() => setIsDeleteGroupConfirmOpen(true)}
-              className="flex items-center gap-3 w-full text-left bg-red-50 text-red-700 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-all border border-red-100"
+              className="bg-red-50 text-red-700 hover:bg-red-100 border-red-100"
               title="Eliminar grupo"
-            >
-              <div className="bg-red-600 p-1.5 rounded-lg text-white">
-                <Trash2 className="w-4 h-4" />
-              </div>
-              <span>Eliminar Grupo</span>
-            </button>
+            />
             <AlertDialogContent className="bg-white">
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Eliminar este grupo?</AlertDialogTitle>
@@ -506,10 +492,7 @@ export function GroupView() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteGroup}
-                  className="bg-red-600 hover:bg-red-700 text-white border-0"
-                >
+                <AlertDialogAction onClick={handleDeleteGroup} className="bg-red-600 hover:bg-red-700 text-white border-0">
                   Sí, eliminar grupo
                 </AlertDialogAction>
               </AlertDialogFooter>
