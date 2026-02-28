@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
@@ -334,6 +336,61 @@ export function GroupView() {
     setSessionTotal(0);
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    // Add title
+    doc.setFontSize(18);
+    doc.setTextColor(33, 37, 41);
+    doc.text(`Resultados del Grupo: ${groupName}`, 14, 22);
+
+    // Add subtitle/date
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 30);
+
+    // Add a horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 34, 196, 34);
+
+    // Create table data
+    // Use sortedMembers to respect the current view preference
+    const tableData = sortedMembers.map((m) => [
+      m.listNumber.toString(),
+      m.name,
+      `${m.puntaje}`
+    ]);
+
+    // Add table
+    autoTable(doc, {
+      startY: 40,
+      head: [['No. Lista', 'Nombre del Miembro', 'Puntaje (pts)']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [79, 70, 229], // Indigo 600
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 30 },
+        2: { halign: 'center', cellWidth: 40 }
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5
+      },
+      alternateRowStyles: {
+        fillColor: [245, 247, 251]
+      }
+    });
+
+    // Save PDF
+    const fileName = `Resultados_${groupName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+    doc.save(fileName);
+  };
+
   const handleStartPresentations = () => {
     if (members.length === 0) return;
 
@@ -399,6 +456,14 @@ export function GroupView() {
 
             <div className="flex items-center gap-2">
               <ThemeToggleButton />
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-2 border-2 border-green-600 text-green-600 hover:bg-green-50 font-medium py-2 px-4 rounded-lg transition-colors"
+                title="Exportar a PDF"
+              >
+                <FileDown className="w-5 h-5" />
+                Exportar PDF
+              </button>
               <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
                 <button
                   onClick={() => setIsResetConfirmOpen(true)}

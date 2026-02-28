@@ -35,3 +35,22 @@ docker compose up -d prod
 
 ---
 **Nota:** Ejecuta estos comandos desde la raíz del proyecto.
+
+Este comando reconstruye la imagen y levanta el contenedor de una vez:
+
+bash
+docker compose up --build prod
+Otras opciones útiles:
+Si quieres reconstruir la imagen sin iniciar el contenedor:
+
+bash
+docker compose build prod
+Si quieres que corra en segundo plano (detached mode):
+
+bash
+docker compose up --build -d prod
+Si quieres limpiar todo antes de reconstruir (asegura una instalación limpia):
+
+bash
+docker compose down
+docker compose up --build prod
