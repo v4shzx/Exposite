@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Plus, LogOut } from 'lucide-react';
 import { GroupCard } from '../components/GroupCard';
 import { AddGroupDialog } from '../components/AddGroupDialog';
 import { GruposDB, MiembrosDB, initializeDB, type Grupo } from '../lib/db';
 import { Sidebar, SidebarSection, SidebarSeparator, SidebarButton } from '../components/Sidebar';
+import { useAuth, AUTH_KEY, USERNAME_KEY } from '../lib/useAuth';
 
 interface GroupDisplay {
   id: number;
@@ -13,37 +14,42 @@ interface GroupDisplay {
 }
 
 export function Dashboard() {
-  const [username, setUsername] = useState('Usuario');
+  const username = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [groups, setGroups] = useState<GroupDisplay[]>([]);
   const navigate = useNavigate();
 
+  // Initialize DB and load groups once on mount
+  useMemo(() => {
+    initializeDB();
+    const grupos = GruposDB.getAll();
+    setGroups(
+      grupos.map((g: Grupo) => ({
+        id: g.id,
+        name: g.nombre,
+        memberCount: MiembrosDB.getByGrupo(g.id).length,
+      }))
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const loadGroups = () => {
     const grupos = GruposDB.getAll();
-    const display: GroupDisplay[] = grupos.map((g: Grupo) => ({
-      id: g.id,
-      name: g.nombre,
-      memberCount: MiembrosDB.getByGrupo(g.id).length,
-    }));
-    setGroups(display);
+    setGroups(
+      grupos.map((g: Grupo) => ({
+        id: g.id,
+        name: g.nombre,
+        memberCount: MiembrosDB.getByGrupo(g.id).length,
+      }))
+    );
   };
 
-  useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      navigate('/');
-      return;
-    }
-
-    const storedUsername = localStorage.getItem('username');
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-
-    // Inicializar la BD con datos de ejemplo si está vacía
-    initializeDB();
-    loadGroups();
-  }, [navigate]);
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  }, []);
 
   const handleAddGroup = (name: string) => {
     GruposDB.create(name);
@@ -55,21 +61,14 @@ export function Dashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('username');
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(USERNAME_KEY);
     navigate('/');
-  };
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Buenos días';
-    if (hour < 19) return 'Buenas tardes';
-    return 'Buenas noches';
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       <Sidebar>
-
         <SidebarSection title="Acciones">
           <SidebarButton
             icon={<Plus className="w-5 h-5 flex-shrink-0" />}
@@ -92,7 +91,7 @@ export function Dashboard() {
           <div className="max-w-6xl mx-auto space-y-10">
             {/* Page Header Area */}
             <div>
-              <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">{getGreeting()}, {username}</h1>
+              <h1 className="text-2xl sm:text-4xl font-black text-gray-900 tracking-tight">{greeting}, {username}</h1>
               <div className="mt-6">
                 <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Mis Grupos</h2>
                 <p className="text-gray-500 font-medium">

@@ -1,28 +1,25 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { LogIn, Eye, EyeOff } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
+import { AUTH_KEY, USERNAME_KEY } from '../lib/useAuth';
 
 export function Login() {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    /*
-    if (!username.trim() || !password.trim()) {
-      setError('Por favor, completa todos los campos');
+    if (!username.trim()) {
+      setError('Por favor, ingresa tu nombre para continuar');
       return;
     }
-    */
-    // Simulación de login - guarda el usuario en localStorage
-    localStorage.setItem('username', username);
-    localStorage.setItem('isAuthenticated', 'true');
+
+    localStorage.setItem(USERNAME_KEY, username.trim());
+    localStorage.setItem(AUTH_KEY, 'true');
     navigate('/dashboard');
   };
 
@@ -38,7 +35,7 @@ export function Login() {
             <LogIn className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bienvenido</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa datos para continuar</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa tu nombre para continuar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -53,35 +50,9 @@ export function Login() {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               placeholder="Ingresa tu nombre"
+              autoFocus
             />
           </div>
-
-          {/*div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Contraseña
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 transition-colors"
-                placeholder="Ingresa tu contraseña"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>*/}
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">

@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, ArrowRight, Save, CheckCircle2 } from 'lucide-react';
-import { GruposDB, MiembrosDB, ReglasDB, type Miembro, type Regla } from '../lib/db';
+import { GruposDB, MiembrosDB, ReglasDB, getSessionKey, type Miembro, type Regla } from '../lib/db';
+import { useAuth } from '../lib/useAuth';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -21,7 +22,10 @@ export function PresentationView() {
   const gId = Number(groupId);
   const mId = Number(memberId);
 
+  useAuth(); // guard: redirige a '/' si no autenticado
+
   const [miembro, setMiembro] = useState<Miembro | null>(null);
+  const [grupoNombre, setGrupoNombre] = useState('');
   const [scores, setScores] = useState<RubricScore[]>([]);
   const [saved, setSaved] = useState(false);
   const [nextMemberId, setNextMemberId] = useState<number | null>(null);
@@ -30,13 +34,9 @@ export function PresentationView() {
   const [sessionTotal, setSessionTotal] = useState(0);
   const sessionActive = sessionTotal > 0;
 
-  useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      navigate('/');
-      return;
-    }
+  const SESSION_KEY = useMemo(() => getSessionKey(gId), [gId]);
 
+  useEffect(() => {
     // Reset per-member state when mId changes (React reuses component across navigations)
     setSaved(false);
     setNextMemberId(null);
@@ -50,9 +50,13 @@ export function PresentationView() {
     }
     setMiembro(found);
 
+    // Load group name
+    const grupo = GruposDB.getById(gId);
+    setGrupoNombre(grupo?.nombre ?? 'Grupo');
+
     // Read session data (if a presentation session is active)
     try {
-      const raw = sessionStorage.getItem(`pres_session_${gId}`);
+      const raw = sessionStorage.getItem(SESSION_KEY);
       if (raw) {
         const s = JSON.parse(raw);
         if (s.active) {
@@ -72,7 +76,7 @@ export function PresentationView() {
         puntaje: null,
       }))
     );
-  }, [gId, mId, navigate]);
+  }, [gId, mId, navigate, SESSION_KEY]);
 
   const handleScoreChange = (reglaId: number, value: string) => {
     const num = parseInt(value, 10);
@@ -88,14 +92,27 @@ export function PresentationView() {
 
   const isComplete = scores.length > 0 && scores.every(s => s.puntaje !== null);
 
-  const totalObtenido = scores.reduce((acc, s) => acc + (s.puntaje || 0), 0);
-  const totalMax = scores.reduce((acc, s) => acc + s.maxPuntaje, 0);
-  const pct = totalMax > 0 ? Math.round((totalObtenido / totalMax) * 100) : 0;
+  const totalObtenido = useMemo(
+    () => scores.reduce((acc, s) => acc + (s.puntaje || 0), 0),
+    [scores]
+  );
+  const totalMax = useMemo(
+    () => scores.reduce((acc, s) => acc + s.maxPuntaje, 0),
+    [scores]
+  );
+  const pct = useMemo(
+    () => (totalMax > 0 ? Math.round((totalObtenido / totalMax) * 100) : 0),
+    [totalObtenido, totalMax]
+  );
+
+  const fullName = useMemo(
+    () => miembro ? `${miembro.nombre} ${miembro.apPaterno} ${miembro.apMaterno}`.trim() : '',
+    [miembro]
+  );
 
   const handleSave = () => {
     MiembrosDB.updatePuntaje(mId, totalObtenido);
     // Mark this member as completed in the active session (if any)
-    const SESSION_KEY = `pres_session_${gId}`;
     const raw = sessionStorage.getItem(SESSION_KEY);
     let remaining: number[] = [];
     if (raw) {
@@ -123,12 +140,6 @@ export function PresentationView() {
     setSaved(true);
   };
 
-  const fullName = miembro
-    ? `${miembro.nombre} ${miembro.apPaterno} ${miembro.apMaterno}`.trim()
-    : '';
-
-  const grupo = GruposDB.getById(gId);
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -145,7 +156,7 @@ export function PresentationView() {
             <div className="hidden sm:block h-8 w-px bg-gray-300" />
             <div>
               <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
-                {grupo?.nombre ?? 'Grupo'}
+                {grupoNombre}
               </p>
               <h1 className="text-xl font-bold text-gray-900">Presentación</h1>
             </div>
@@ -189,7 +200,7 @@ export function PresentationView() {
           <div className="text-center sm:text-right shrink-0">
             <p className="text-purple-200 text-xs font-semibold uppercase tracking-wider">Puntaje</p>
             <p className="text-3xl font-black text-white">{totalObtenido}</p>
-            <p className="text-purple-300 text-xs">/ {totalMax} pts</p>
+            <p className="text-purple-300 text-xs">/ {totalMax} pts ({pct}%)</p>
           </div>
         </div>
 

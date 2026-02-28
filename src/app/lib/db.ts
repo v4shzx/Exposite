@@ -195,6 +195,13 @@ export const MiembrosDB = {
   },
 };
 
+// ─── Sesión de presentaciones ─────────────────────────────────────────────────
+
+/** Devuelve la clave de sessionStorage para la sesión de presentaciones de un grupo. */
+export function getSessionKey(groupId: number): string {
+  return `pres_session_${groupId}`;
+}
+
 // ─── Reglas ───────────────────────────────────────────────────────────────────
 
 export const ReglasDB = {

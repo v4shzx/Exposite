@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-interface Member {
-  id: number;
+// Datos que este diálogo maneja (sin avatar ni puntaje — se calculan en la capa de datos)
+export interface MemberFormData {
+  id?: number;
   listNumber: number;
   name: string;
-  avatar: string;
 }
 
 interface AddMemberDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddMember: (member: Omit<Member, 'id'>) => void;
-  onEditMember?: (member: Member) => void;
-  initialData?: Member | null;
+  onAddMember: (data: Omit<MemberFormData, 'id'>) => void;
+  onEditMember?: (data: MemberFormData & { id: number }) => void;
+  initialData?: MemberFormData | null;
 }
 
 export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, initialData }: AddMemberDialogProps) {
@@ -24,7 +24,7 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
 
   useEffect(() => {
     if (initialData) {
-      // Intentar separar el nombre (esto es aproximado)
+      // Separar el nombre compuesto
       const parts = initialData.name.split(' ');
       setFirstName(parts[0] || '');
       setPaternalLastName(parts[1] || '');
@@ -41,24 +41,15 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (firstName.trim() && paternalLastName.trim() && listNumber.trim()) {
-      const fullName = `${firstName} ${paternalLastName} ${maternalLastName}`.trim();
-      const avatar = (firstName[0] || '') + (paternalLastName[0] || '');
-      
-      if (initialData && onEditMember) {
-        onEditMember({
-          ...initialData,
-          listNumber: parseInt(listNumber),
-          name: fullName,
-          avatar: avatar.toUpperCase(),
-        });
+      const fullName = `${firstName.trim()} ${paternalLastName.trim()} ${maternalLastName.trim()}`.trim();
+      const parsedListNumber = parseInt(listNumber);
+
+      if (initialData?.id !== undefined && onEditMember) {
+        onEditMember({ id: initialData.id, listNumber: parsedListNumber, name: fullName });
       } else {
-        onAddMember({
-          listNumber: parseInt(listNumber),
-          name: fullName,
-          avatar: avatar.toUpperCase(),
-        });
+        onAddMember({ listNumber: parsedListNumber, name: fullName });
       }
-      
+
       onClose();
     }
   };
@@ -79,7 +70,7 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -138,7 +129,7 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
               placeholder="Ej. 1"
             />
           </div>
-          
+
           <div className="flex gap-3 pt-4">
             <button
               type="button"

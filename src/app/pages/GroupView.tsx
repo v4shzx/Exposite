@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown, Home, Flag } from 'lucide-react';
+import { Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, RotateCcw, Play, FileDown, Home, Flag } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { AddMemberDialog } from '../components/AddMemberDialog';
+import { AddMemberDialog, type MemberFormData } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
 import { Sidebar, SidebarSection, SidebarSeparator, SidebarButton } from '../components/Sidebar';
 import {
@@ -27,9 +27,11 @@ import {
   GruposDB,
   MiembrosDB,
   ReglasDB,
+  getSessionKey,
   type Miembro,
   type Regla,
 } from '../lib/db';
+import { useAuth } from '../lib/useAuth';
 import {
   Select,
   SelectContent,
@@ -144,7 +146,7 @@ function MemberRow({ member, onEdit, onDelete, onPresent }: MemberRowProps) {
                 <AlertDialogHeader>
                   <AlertDialogTitle>¿Eliminar miembro?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    ¿Estás seguro de que deseas eliminar a **{member.name}**? Esta acción no se puede deshacer.
+                    ¿Estás seguro de que deseas eliminar a <strong>{member.name}</strong>? Esta acción no se puede deshacer.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -177,7 +179,7 @@ export function GroupView() {
   const [rubricItems, setRubricItems] = useState<RubricItemUI[]>([]);
 
   const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<MemberUI | null>(null);
+  const [editingMember, setEditingMember] = useState<MemberFormData | null>(null);
   const [isAddRubricDialogOpen, setIsAddRubricDialogOpen] = useState(false);
   const [editingRubricItem, setEditingRubricItem] = useState<RubricItemUI | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
@@ -185,10 +187,12 @@ export function GroupView() {
   const [sortBy, setSortBy] = useState<'list' | 'score'>('list');
 
   // ── Sesión de presentaciones ───────────────────────────────────────────────
-  const SESSION_KEY = `pres_session_${gId}`;
+  const SESSION_KEY = useMemo(() => getSessionKey(gId), [gId]);
   const [sessionActive, setSessionActive] = useState(false);
   const [sessionCompleted, setSessionCompleted] = useState<number[]>([]);
   const [sessionTotal, setSessionTotal] = useState(0);
+
+  useAuth(); // guard: redirige a '/' si no autenticado
 
   const loadGroupData = useCallback(() => {
     const grupo = GruposDB.getById(gId);
@@ -204,11 +208,6 @@ export function GroupView() {
   }, [gId]);
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (!isAuthenticated) {
-      navigate('/');
-      return;
-    }
     loadGroupData();
     // Restore session from sessionStorage
     const raw = sessionStorage.getItem(SESSION_KEY);
@@ -222,7 +221,7 @@ export function GroupView() {
         }
       } catch {/* ignore */ }
     }
-  }, [navigate, loadGroupData, SESSION_KEY]);
+  }, [loadGroupData, SESSION_KEY]);
 
   // ── Grupo ──────────────────────────────────────────────────────────────────
 
@@ -240,7 +239,7 @@ export function GroupView() {
     setIsAddMemberDialogOpen(true);
   };
 
-  const onAddMember = (data: Omit<MemberUI, 'id'>) => {
+  const onAddMember = (data: Omit<MemberFormData, 'id'>) => {
     const parts = data.name.split(' ');
     MiembrosDB.create(gId, {
       idLista: data.listNumber,
@@ -251,7 +250,7 @@ export function GroupView() {
     loadGroupData();
   };
 
-  const onEditMember = (updated: MemberUI) => {
+  const onEditMember = (updated: MemberFormData & { id: number }) => {
     const parts = updated.name.split(' ');
     const current = MiembrosDB.getByGrupo(gId).find((m) => m.id === updated.id);
     const miembro: Miembro = {
@@ -275,7 +274,7 @@ export function GroupView() {
   };
 
   const handleOpenEditMemberDialog = (member: MemberUI) => {
-    setEditingMember(member);
+    setEditingMember({ id: member.id, listNumber: member.listNumber, name: member.name });
     setIsAddMemberDialogOpen(true);
   };
 
@@ -317,10 +316,17 @@ export function GroupView() {
     loadGroupData();
   };
 
+  const [deletingRubricItemId, setDeletingRubricItemId] = useState<number | null>(null);
+
   const handleDeleteRubricItem = (id: number) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta regla?')) {
-      ReglasDB.delete(id, gId);
+    setDeletingRubricItemId(id);
+  };
+
+  const confirmDeleteRubricItem = () => {
+    if (deletingRubricItemId !== null) {
+      ReglasDB.delete(deletingRubricItemId, gId);
       loadGroupData();
+      setDeletingRubricItemId(null);
     }
   };
 
@@ -567,7 +573,7 @@ export function GroupView() {
                 <div className="flex items-center gap-4">
                   <h2 className="text-xl font-semibold text-gray-900">Miembros</h2>
                   <div className="w-40 sm:w-48">
-                    <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
+                    <Select value={sortBy} onValueChange={(val: 'list' | 'score') => setSortBy(val)}>
                       <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Ordenar por" />
                       </SelectTrigger>
@@ -689,10 +695,34 @@ export function GroupView() {
           setIsAddMemberDialogOpen(false);
           setEditingMember(null);
         }}
-        onAddMember={onAddMember as any}
-        onEditMember={onEditMember as any}
-        initialData={editingMember as any}
+        onAddMember={onAddMember}
+        onEditMember={onEditMember}
+        initialData={editingMember}
       />
+
+      {/* AlertDialog para confirmar eliminación de regla de rúbrica */}
+      <AlertDialog
+        open={deletingRubricItemId !== null}
+        onOpenChange={(open) => { if (!open) setDeletingRubricItemId(null); }}
+      >
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar esta regla?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará la regla de rúbrica permanentemente. No se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteRubricItem}
+              className="bg-red-600 hover:bg-red-700 text-white border-0"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AddRubricItemDialog
         isOpen={isAddRubricDialogOpen}
