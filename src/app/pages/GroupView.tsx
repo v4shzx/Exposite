@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown } from 'lucide-react';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
@@ -429,49 +429,49 @@ export function GroupView() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="font-medium">Volver</span>
-              </button>
-              <div className="h-8 w-px bg-gray-300"></div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{groupName}</h1>
-                <div className="flex items-center gap-2 text-gray-600 mt-1">
-                  <Users className="w-4 h-4" />
-                  <span className="text-sm">
-                    {members.length} {members.length === 1 ? 'miembro' : 'miembros'}
-                  </span>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+      {/* Sidebar */}
+      <aside className="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-gray-200 shadow-sm flex-shrink-0 flex flex-col">
+        <div className="p-6 flex flex-col gap-8 h-full">
+          {/* Navigation & Group Info */}
+          <div className="flex flex-col gap-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Volver</span>
+            </button>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <ThemeToggleButton />
+          <div className="h-px bg-gray-100 italic" />
+
+          {/* Actions Section */}
+          <div className="flex flex-col gap-4">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Gestión del Grupo</p>
+
+            <div className="flex flex-col gap-2">
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 border-2 border-green-600 text-green-600 hover:bg-green-50 font-medium py-2 px-4 rounded-lg transition-colors"
+                className="flex items-center gap-3 w-full text-left bg-green-50 text-green-700 hover:bg-green-100 font-semibold py-3 px-4 rounded-xl transition-all border border-green-100"
                 title="Exportar a PDF"
               >
-                <FileDown className="w-5 h-5" />
-                Exportar PDF
+                <div className="bg-green-600 p-1.5 rounded-lg text-white">
+                  <FileDown className="w-4 h-4" />
+                </div>
+                <span>Exportar PDF</span>
               </button>
+
               <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
                 <button
                   onClick={() => setIsResetConfirmOpen(true)}
-                  className="flex items-center gap-2 border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="flex items-center gap-3 w-full text-left bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold py-3 px-4 rounded-xl transition-all border border-indigo-100"
                   title="Resetear puntajes"
                 >
-                  <RotateCcw className="w-5 h-5" />
-                  Resetear
+                  <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
+                    <RotateCcw className="w-4 h-4" />
+                  </div>
+                  <span>Resetear</span>
                 </button>
                 <AlertDialogContent className="bg-white">
                   <AlertDialogHeader>
@@ -484,21 +484,24 @@ export function GroupView() {
                     <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleResetScores}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white border-0"
                     >
                       Sí, resetear puntajes
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+
               <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
                 <button
                   onClick={() => setIsDeleteGroupConfirmOpen(true)}
-                  className="flex items-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-50 font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="flex items-center gap-3 w-full text-left bg-red-50 text-red-700 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-all border border-red-100"
                   title="Eliminar grupo"
                 >
-                  <Trash2 className="w-5 h-5" />
-                  Eliminar Grupo
+                  <div className="bg-red-600 p-1.5 rounded-lg text-white">
+                    <Trash2 className="w-4 h-4" />
+                  </div>
+                  <span>Eliminar Grupo</span>
                 </button>
                 <AlertDialogContent className="bg-white">
                   <AlertDialogHeader>
@@ -511,7 +514,7 @@ export function GroupView() {
                     <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteGroup}
-                      className="bg-red-600 hover:bg-red-700 text-white"
+                      className="bg-red-600 hover:bg-red-700 text-white border-0"
                     >
                       Sí, eliminar grupo
                     </AlertDialogAction>
@@ -520,172 +523,189 @@ export function GroupView() {
               </AlertDialog>
             </div>
           </div>
+
+          {/* Footer of Sidebar */}
+          <div className="mt-auto pt-6 flex items-center justify-between border-t border-gray-100">
+            <span className="text-xs text-gray-400 font-medium tracking-tight">Preferencias</span>
+            <ThemeToggleButton />
+          </div>
         </div>
-      </header>
+      </aside>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-
-          {/* Members Section */}
-          <section>
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl font-semibold text-gray-900">Miembros</h2>
-                <div className="w-48">
-                  <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Ordenar por" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="list">Orden de lista</SelectItem>
-                      <SelectItem value="score">Puntaje mayor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <button
-                onClick={handleAddMember}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
-              >
-                <UserPlus className="w-5 h-5" />
-                Añadir Miembro
-              </button>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
-              <div className="divide-y divide-gray-200">
-                {sortedMembers.map((member) => (
-                  <MemberRow
-                    key={member.id}
-                    member={member}
-                    onEdit={handleOpenEditMemberDialog}
-                    onDelete={handleDeleteMember}
-                    onPresent={handlePresentMember}
-                  />
-                ))}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="max-w-6xl mx-auto space-y-10">
+            <div>
+              <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">{groupName}</h1>
+              <div className="flex items-center gap-2 text-gray-500 mt-2">
+                <Users className="w-5 h-5" />
+                <span className="font-medium">
+                  {members.length} {members.length === 1 ? 'miembro' : 'miembros'}
+                </span>
               </div>
             </div>
 
-            {members.length === 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-                <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Este grupo aún no tiene miembros</p>
-              </div>
-            )}
-          </section>
-
-          {/* Rubric Rules Section */}
-          <section>
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-3">
-                <h2 className="text-xl font-semibold text-gray-900">Reglas de Rúbrica</h2>
-                <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-                  Total: {rubricItems.reduce((acc, item) => acc + item.points, 0)} pts
-                </div>
-              </div>
-              <button
-                onClick={handleAddRubricItem}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
-              >
-                <Plus className="w-5 h-5" />
-                Añadir Regla
-              </button>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
-              <div className="divide-y divide-gray-200">
-                {rubricItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
-                      <p className="text-xs text-gray-600">{item.description}</p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-sm">
-                        {item.points} pts
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-32 bg-white">
-                          <DropdownMenuItem
-                            onClick={() => handleOpenEditRubricDialog(item)}
-                            className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                            <span>Editar</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteRubricItem(item.id)}
-                            className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Eliminar</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+            {/* Members Section */}
+            <section>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-xl font-semibold text-gray-900">Miembros</h2>
+                  <div className="w-48">
+                    <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Ordenar por" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="list">Orden de lista</SelectItem>
+                        <SelectItem value="score">Puntaje mayor</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                ))}
+                </div>
+                <button
+                  onClick={handleAddMember}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
+                >
+                  <UserPlus className="w-5 h-5" />
+                  Añadir Miembro
+                </button>
               </div>
-            </div>
 
-            {rubricItems.length === 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-                <p className="text-gray-500">No hay reglas en la rúbrica</p>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
+                <div className="divide-y divide-gray-200">
+                  {sortedMembers.map((member) => (
+                    <MemberRow
+                      key={member.id}
+                      member={member}
+                      onEdit={handleOpenEditMemberDialog}
+                      onDelete={handleDeleteMember}
+                      onPresent={handlePresentMember}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {members.length === 0 && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">Este grupo aún no tiene miembros</p>
+                </div>
+              )}
+            </section>
+
+            {/* Rubric Rules Section */}
+            <section>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-semibold text-gray-900">Reglas de Rúbrica</h2>
+                  <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                    Total: {rubricItems.reduce((acc, item) => acc + item.points, 0)} pts
+                  </div>
+                </div>
+                <button
+                  onClick={handleAddRubricItem}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md"
+                >
+                  <Plus className="w-5 h-5" />
+                  Añadir Regla
+                </button>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
+                <div className="divide-y divide-gray-200">
+                  {rubricItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                    >
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                        <p className="text-xs text-gray-600">{item.description}</p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-sm">
+                          {item.points} pts
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-32 bg-white">
+                            <DropdownMenuItem
+                              onClick={() => handleOpenEditRubricDialog(item)}
+                              className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                              <span>Editar</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteRubricItem(item.id)}
+                              className="flex items-center gap-2 cursor-pointer text-gray-600 focus:text-gray-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span>Eliminar</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {rubricItems.length === 0 && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                  <p className="text-gray-500">No hay reglas en la rúbrica</p>
+                </div>
+              )}
+            </section>
+          </div>
+
+          {/* Start Presentations Button */}
+          <div className="flex flex-col items-center gap-4">
+            {/* Session counter — only shows when a session is active */}
+            {sessionActive && (
+              <div className="flex items-center gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-8 py-4">
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Presentados</p>
+                  <p className="text-3xl font-black text-green-600">{sessionCompleted.length}</p>
+                </div>
+                <div className="h-10 w-px bg-gray-200" />
+                <div className="text-center">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Restantes</p>
+                  <p className="text-3xl font-black text-indigo-600">
+                    {sessionTotal - sessionCompleted.length}/{sessionTotal}
+                  </p>
+                </div>
+                <div className="h-10 w-px bg-gray-200" />
+                <button
+                  onClick={handleEndSession}
+                  className="text-sm text-gray-500 hover:text-red-600 font-medium transition-colors"
+                >
+                  Finalizar sesión
+                </button>
               </div>
             )}
-          </section>
-        </div>
 
-        {/* Start Presentations Button */}
-        <div className="flex flex-col items-center gap-4">
-          {/* Session counter — only shows when a session is active */}
-          {sessionActive && (
-            <div className="flex items-center gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-8 py-4">
-              <div className="text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Presentados</p>
-                <p className="text-3xl font-black text-green-600">{sessionCompleted.length}</p>
-              </div>
-              <div className="h-10 w-px bg-gray-200" />
-              <div className="text-center">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Restantes</p>
-                <p className="text-3xl font-black text-indigo-600">
-                  {sessionTotal - sessionCompleted.length}/{sessionTotal}
-                </p>
-              </div>
-              <div className="h-10 w-px bg-gray-200" />
-              <button
-                onClick={handleEndSession}
-                className="text-sm text-gray-500 hover:text-red-600 font-medium transition-colors"
-              >
-                Finalizar sesión
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={handleStartPresentations}
-            disabled={sessionActive && sessionCompleted.length >= sessionTotal}
-            className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-xl py-6 px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl
+            <button
+              onClick={handleStartPresentations}
+              disabled={sessionActive && sessionCompleted.length >= sessionTotal}
+              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-xl py-6 px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl
               ${sessionActive && sessionCompleted.length >= sessionTotal ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}`}
-          >
-            {sessionActive
-              ? sessionCompleted.length >= sessionTotal
-                ? '✓ Todos presentaron'
-                : 'Siguiente presentación'
-              : 'Iniciar Presentaciones'}
-          </button>
-        </div>
-      </main>
+            >
+              {sessionActive
+                ? sessionCompleted.length >= sessionTotal
+                  ? '✓ Todos presentaron'
+                  : 'Siguiente presentación'
+                : 'Iniciar Presentaciones'}
+            </button>
+          </div>
+        </main>
+      </div>
 
       {/* Modals */}
       <AddMemberDialog
@@ -694,9 +714,9 @@ export function GroupView() {
           setIsAddMemberDialogOpen(false);
           setEditingMember(null);
         }}
-        onAddMember={onAddMember}
-        onEditMember={onEditMember}
-        initialData={editingMember}
+        onAddMember={onAddMember as any}
+        onEditMember={onEditMember as any}
+        initialData={editingMember as any}
       />
 
       <AddRubricItemDialog
