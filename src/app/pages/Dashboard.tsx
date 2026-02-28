@@ -66,16 +66,16 @@ export function Dashboard() {
 
         <SidebarSection title="Acciones">
           <SidebarButton
-            icon={<div className="bg-blue-600 p-1.5 rounded-lg text-white flex-shrink-0"><Plus className="w-4 h-4" /></div>}
+            icon={<Plus className="w-5 h-5 flex-shrink-0" />}
             label="Nuevo Grupo"
             onClick={() => setIsDialogOpen(true)}
-            className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-100"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
           <SidebarButton
-            icon={<div className="bg-red-600 p-1.5 rounded-lg text-white flex-shrink-0"><LogOut className="w-4 h-4" /></div>}
+            icon={<LogOut className="w-5 h-5 flex-shrink-0" />}
             label="Cerrar Sesión"
             onClick={handleLogout}
-            className="bg-red-50 text-red-700 hover:bg-red-100 border-red-100"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
         </SidebarSection>
       </Sidebar>

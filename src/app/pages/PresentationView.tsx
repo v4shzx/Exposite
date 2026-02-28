@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, ArrowRight, Save, CheckCircle2 } from 'lucide-react';
 import { GruposDB, MiembrosDB, ReglasDB, type Miembro, type Regla } from '../lib/db';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
 
 // ── Tipos locales ────────────────────────────────────────────────────────────
 
@@ -151,7 +150,6 @@ export function PresentationView() {
               <h1 className="text-xl font-bold text-gray-900">Presentación</h1>
             </div>
           </div>
-          <ThemeToggleButton />
         </div>
       </header>
 
@@ -168,13 +166,6 @@ export function PresentationView() {
                   {sessionTotal - sessionCompleted} restantes de {sessionTotal}
                 </span>
               </div>
-            </div>
-            {/* Mini progress bar */}
-            <div className="w-full sm:w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-2 bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-500"
-                style={{ width: `${sessionTotal > 0 ? (sessionCompleted / sessionTotal) * 100 : 0}%` }}
-              />
             </div>
           </div>
         </div>

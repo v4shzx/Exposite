@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown, Home } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AddMemberDialog } from '../components/AddMemberDialog';
@@ -432,10 +432,10 @@ export function GroupView() {
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar */}
       <Sidebar>
-        <SidebarSection>
+        <SidebarSection title="Navegación">
           <SidebarButton
-            icon={<ArrowLeft className="w-5 h-5 flex-shrink-0" />}
-            label="Volver"
+            icon={<Home className="w-5 h-5 flex-shrink-0" />}
+            label="Menu Principal"
             onClick={handleBack}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
@@ -445,25 +445,25 @@ export function GroupView() {
 
         <SidebarSection title="Gestión del Grupo">
           <SidebarButton
-            icon={<div className="bg-green-600 p-1.5 rounded-lg text-white flex-shrink-0"><FileDown className="w-4 h-4" /></div>}
+            icon={<FileDown className="w-5 h-5 flex-shrink-0" />}
             label="Exportar PDF"
             onClick={handleExportPDF}
-            className="bg-green-50 text-green-700 hover:bg-green-100 border-green-100"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
 
           <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
             <SidebarButton
-              icon={<div className="bg-indigo-600 p-1.5 rounded-lg text-white flex-shrink-0"><RotateCcw className="w-4 h-4" /></div>}
+              icon={<RotateCcw className="w-5 h-5 flex-shrink-0" />}
               label="Resetear"
               onClick={() => setIsResetConfirmOpen(true)}
-              className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
               title="Resetear puntajes"
             />
             <AlertDialogContent className="bg-white">
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción reseteará a 0 el puntaje de **todos** los miembros del grupo "{groupName}". Esta acción no se puede deshacer.
+                  Esta acción reseteará a 0 el puntaje de TODOS los miembros del grupo "{groupName}". Esta acción no se puede deshacer.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -477,10 +477,10 @@ export function GroupView() {
 
           <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
             <SidebarButton
-              icon={<div className="bg-red-600 p-1.5 rounded-lg text-white flex-shrink-0"><Trash2 className="w-4 h-4" /></div>}
+              icon={<Trash2 className="w-5 h-5 flex-shrink-0" />}
               label="Eliminar Grupo"
               onClick={() => setIsDeleteGroupConfirmOpen(true)}
-              className="bg-red-50 text-red-700 hover:bg-red-100 border-red-100"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
               title="Eliminar grupo"
             />
             <AlertDialogContent className="bg-white">
@@ -635,7 +635,7 @@ export function GroupView() {
           </div>
 
           {/* Start Presentations Button */}
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4 mt-10 mb-6">
             {/* Session counter — only shows when a session is active */}
             {sessionActive && (
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-6 sm:px-8 py-4">
@@ -663,7 +663,7 @@ export function GroupView() {
             <button
               onClick={handleStartPresentations}
               disabled={sessionActive && sessionCompleted.length >= sessionTotal}
-              className={`bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg sm:text-xl py-4 px-8 sm:py-6 sm:px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl w-full sm:w-auto
+              className={`bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg sm:text-xl py-4 px-8 sm:py-6 sm:px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl w-full sm:w-auto
               ${sessionActive && sessionCompleted.length >= sessionTotal ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}`}
             >
               {sessionActive
