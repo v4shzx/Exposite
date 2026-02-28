@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown, Home } from 'lucide-react';
+import { ArrowLeft, Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, Check, X, RotateCcw, Play, FileDown, Home, Flag } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AddMemberDialog } from '../components/AddMemberDialog';
@@ -515,6 +515,52 @@ export function GroupView() {
               </div>
             </div>
 
+            <hr className="border-gray-200" />
+
+            {/* Presentations Row */}
+            <section>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Presentaciones</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <button
+                  onClick={handleStartPresentations}
+                  disabled={sessionActive && sessionCompleted.length >= sessionTotal}
+                  className={`flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg py-3 px-6 sm:py-4 sm:px-8 rounded-xl shadow-lg transform transition-all hover:scale-105 w-full sm:w-auto
+                ${sessionActive && sessionCompleted.length >= sessionTotal ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}`}
+                >
+                  <Flag className="w-5 h-5" />
+                  {sessionActive
+                    ? sessionCompleted.length >= sessionTotal
+                      ? 'Todos presentaron'
+                      : 'Siguiente presentación'
+                    : 'Iniciar Presentaciones'}
+                </button>
+
+                {/* Session counter — only shows when a session is active */}
+                {sessionActive && (
+                  <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-6 sm:px-8 py-3">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Presentados</p>
+                      <p className="text-2xl font-black text-green-600">{sessionCompleted.length}</p>
+                    </div>
+                    <div className="hidden sm:block h-8 w-px bg-gray-200" />
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Restantes</p>
+                      <p className="text-2xl font-black text-indigo-600">
+                        {sessionTotal - sessionCompleted.length}/{sessionTotal}
+                      </p>
+                    </div>
+                    <div className="hidden sm:block h-8 w-px bg-gray-200" />
+                    <button
+                      onClick={handleEndSession}
+                      className="text-sm text-red-600 font-medium transition-colors"
+                    >
+                      Finalizar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            </section>
+
             {/* Members Section */}
             <section>
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
@@ -632,46 +678,6 @@ export function GroupView() {
                 </div>
               )}
             </section>
-          </div>
-
-          {/* Start Presentations Button */}
-          <div className="flex flex-col items-center gap-4 mt-10 mb-6">
-            {/* Session counter — only shows when a session is active */}
-            {sessionActive && (
-              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-white border border-gray-200 rounded-2xl shadow-sm px-6 sm:px-8 py-4">
-                <div className="text-center">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Presentados</p>
-                  <p className="text-3xl font-black text-green-600">{sessionCompleted.length}</p>
-                </div>
-                <div className="hidden sm:block h-10 w-px bg-gray-200" />
-                <div className="text-center">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-0.5">Restantes</p>
-                  <p className="text-3xl font-black text-indigo-600">
-                    {sessionTotal - sessionCompleted.length}/{sessionTotal}
-                  </p>
-                </div>
-                <div className="hidden sm:block h-10 w-px bg-gray-200" />
-                <button
-                  onClick={handleEndSession}
-                  className="text-sm text-gray-500 hover:text-red-600 font-medium transition-colors"
-                >
-                  Finalizar sesión
-                </button>
-              </div>
-            )}
-
-            <button
-              onClick={handleStartPresentations}
-              disabled={sessionActive && sessionCompleted.length >= sessionTotal}
-              className={`bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg sm:text-xl py-4 px-8 sm:py-6 sm:px-12 rounded-2xl shadow-2xl transform transition-all hover:scale-105 hover:shadow-3xl w-full sm:w-auto
-              ${sessionActive && sessionCompleted.length >= sessionTotal ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}`}
-            >
-              {sessionActive
-                ? sessionCompleted.length >= sessionTotal
-                  ? '✓ Todos presentaron'
-                  : 'Siguiente presentación'
-                : 'Iniciar Presentaciones'}
-            </button>
           </div>
         </main>
       </div>
