@@ -4,7 +4,7 @@ import { Plus, LogOut } from 'lucide-react';
 import { GroupCard } from '../components/GroupCard';
 import { AddGroupDialog } from '../components/AddGroupDialog';
 import { GruposDB, MiembrosDB, initializeDB, type Grupo } from '../lib/db';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
+import { Sidebar, SidebarSection, SidebarSeparator } from '../components/Sidebar';
 
 interface GroupDisplay {
   id: number;
@@ -62,53 +62,37 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-gray-200 shadow-sm flex-shrink-0 flex flex-col">
-        <div className="p-6 flex flex-col gap-8 h-full">
-          {/* User Info */}
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Usuario</p>
-            <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-              ¡Hola! {username}
-            </h1>
-          </div>
+      <Sidebar>
+        <SidebarSection title="Usuario">
+          <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+            ¡Hola! {username}
+          </h1>
+        </SidebarSection>
 
-          <div className="h-px bg-gray-100" />
+        <SidebarSeparator />
 
-          {/* Actions Section */}
-          <div className="flex flex-col gap-4">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Acciones</p>
-
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => setIsDialogOpen(true)}
-                className="flex items-center gap-3 w-full text-left bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold py-3 px-4 rounded-xl transition-all border border-blue-100"
-              >
-                <div className="bg-blue-600 p-1.5 rounded-lg text-white">
-                  <Plus className="w-4 h-4" />
-                </div>
-                <span>Nuevo Grupo</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 w-full text-left bg-red-50 text-red-700 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-all border border-red-100"
-              >
-                <div className="bg-red-600 p-1.5 rounded-lg text-white">
-                  <LogOut className="w-4 h-4" />
-                </div>
-                <span>Cerrar Sesión</span>
-              </button>
+        <SidebarSection title="Acciones">
+          <button
+            onClick={() => setIsDialogOpen(true)}
+            className="flex items-center gap-3 w-full text-left bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold py-3 px-4 rounded-xl transition-all border border-blue-100"
+          >
+            <div className="bg-blue-600 p-1.5 rounded-lg text-white">
+              <Plus className="w-4 h-4" />
             </div>
-          </div>
+            <span>Nuevo Grupo</span>
+          </button>
 
-          {/* Footer of Sidebar */}
-          <div className="mt-auto pt-6 flex items-center justify-between border-t border-gray-100">
-            <span className="text-xs text-gray-400 font-medium tracking-tight">Preferencias</span>
-            <ThemeToggleButton />
-          </div>
-        </div>
-      </aside>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full text-left bg-red-50 text-red-700 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-all border border-red-100"
+          >
+            <div className="bg-red-600 p-1.5 rounded-lg text-white">
+              <LogOut className="w-4 h-4" />
+            </div>
+            <span>Cerrar Sesión</span>
+          </button>
+        </SidebarSection>
+      </Sidebar>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">

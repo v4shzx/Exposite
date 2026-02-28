@@ -5,7 +5,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AddMemberDialog } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
+import { Sidebar, SidebarSection, SidebarSeparator } from '../components/Sidebar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -431,106 +431,92 @@ export function GroupView() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar */}
-      <aside className="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-gray-200 shadow-sm flex-shrink-0 flex flex-col">
-        <div className="p-6 flex flex-col gap-8 h-full">
-          {/* Navigation & Group Info */}
-          <div className="flex flex-col gap-6">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Volver</span>
-            </button>
-          </div>
+      <Sidebar>
+        <SidebarSection>
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors self-start"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Volver</span>
+          </button>
+        </SidebarSection>
 
-          <div className="h-px bg-gray-100 italic" />
+        <SidebarSeparator />
 
-          {/* Actions Section */}
-          <div className="flex flex-col gap-4">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Gestión del Grupo</p>
-
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={handleExportPDF}
-                className="flex items-center gap-3 w-full text-left bg-green-50 text-green-700 hover:bg-green-100 font-semibold py-3 px-4 rounded-xl transition-all border border-green-100"
-                title="Exportar a PDF"
-              >
-                <div className="bg-green-600 p-1.5 rounded-lg text-white">
-                  <FileDown className="w-4 h-4" />
-                </div>
-                <span>Exportar PDF</span>
-              </button>
-
-              <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
-                <button
-                  onClick={() => setIsResetConfirmOpen(true)}
-                  className="flex items-center gap-3 w-full text-left bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold py-3 px-4 rounded-xl transition-all border border-indigo-100"
-                  title="Resetear puntajes"
-                >
-                  <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
-                    <RotateCcw className="w-4 h-4" />
-                  </div>
-                  <span>Resetear</span>
-                </button>
-                <AlertDialogContent className="bg-white">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta acción reseteará a 0 el puntaje de **todos** los miembros del grupo "{groupName}". Esta acción no se puede deshacer.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleResetScores}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white border-0"
-                    >
-                      Sí, resetear puntajes
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-
-              <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
-                <button
-                  onClick={() => setIsDeleteGroupConfirmOpen(true)}
-                  className="flex items-center gap-3 w-full text-left bg-red-50 text-red-700 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-all border border-red-100"
-                  title="Eliminar grupo"
-                >
-                  <div className="bg-red-600 p-1.5 rounded-lg text-white">
-                    <Trash2 className="w-4 h-4" />
-                  </div>
-                  <span>Eliminar Grupo</span>
-                </button>
-                <AlertDialogContent className="bg-white">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>¿Eliminar este grupo?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Esta acción eliminará el grupo "{groupName}", todos sus miembros y sus reglas de rúbrica. Esta acción no se puede deshacer.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteGroup}
-                      className="bg-red-600 hover:bg-red-700 text-white border-0"
-                    >
-                      Sí, eliminar grupo
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+        <SidebarSection title="Gestión del Grupo">
+          <button
+            onClick={handleExportPDF}
+            className="flex items-center gap-3 w-full text-left bg-green-50 text-green-700 hover:bg-green-100 font-semibold py-3 px-4 rounded-xl transition-all border border-green-100"
+            title="Exportar a PDF"
+          >
+            <div className="bg-green-600 p-1.5 rounded-lg text-white">
+              <FileDown className="w-4 h-4" />
             </div>
-          </div>
+            <span>Exportar PDF</span>
+          </button>
 
-          {/* Footer of Sidebar */}
-          <div className="mt-auto pt-6 flex items-center justify-between border-t border-gray-100">
-            <span className="text-xs text-gray-400 font-medium tracking-tight">Preferencias</span>
-            <ThemeToggleButton />
-          </div>
-        </div>
-      </aside>
+          <AlertDialog open={isResetConfirmOpen} onOpenChange={setIsResetConfirmOpen}>
+            <button
+              onClick={() => setIsResetConfirmOpen(true)}
+              className="flex items-center gap-3 w-full text-left bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold py-3 px-4 rounded-xl transition-all border border-indigo-100"
+              title="Resetear puntajes"
+            >
+              <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
+                <RotateCcw className="w-4 h-4" />
+              </div>
+              <span>Resetear</span>
+            </button>
+            <AlertDialogContent className="bg-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción reseteará a 0 el puntaje de **todos** los miembros del grupo "{groupName}". Esta acción no se puede deshacer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleResetScores}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white border-0"
+                >
+                  Sí, resetear puntajes
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog open={isDeleteGroupConfirmOpen} onOpenChange={setIsDeleteGroupConfirmOpen}>
+            <button
+              onClick={() => setIsDeleteGroupConfirmOpen(true)}
+              className="flex items-center gap-3 w-full text-left bg-red-50 text-red-700 hover:bg-red-100 font-semibold py-3 px-4 rounded-xl transition-all border border-red-100"
+              title="Eliminar grupo"
+            >
+              <div className="bg-red-600 p-1.5 rounded-lg text-white">
+                <Trash2 className="w-4 h-4" />
+              </div>
+              <span>Eliminar Grupo</span>
+            </button>
+            <AlertDialogContent className="bg-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Eliminar este grupo?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción eliminará el grupo "{groupName}", todos sus miembros y sus reglas de rúbrica. Esta acción no se puede deshacer.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200">Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteGroup}
+                  className="bg-red-600 hover:bg-red-700 text-white border-0"
+                >
+                  Sí, eliminar grupo
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </SidebarSection>
+      </Sidebar>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
