@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, ArrowRight, Save, CheckCircle2 } from 'lucide-react';
+import { Sidebar, SidebarButton } from '../components/Sidebar';
+import packageInfo from '../../../package.json';
 import { GruposDB, MiembrosDB, ReglasDB, getSessionKey, type Miembro, type Regla } from '../lib/db';
 import { useAuth } from '../lib/useAuth';
 
@@ -295,6 +297,19 @@ export function PresentationView() {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Footer */}
+        <footer className="max-w-4xl mx-auto mt-20 pb-12 text-center opacity-40 px-4">
+          <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold mb-1">
+            © 2026 Alejandro Balderas Rios
+          </p>
+          <p className="text-[9px] text-gray-400 dark:text-gray-500 font-medium">
+            Prohibida la reproducción total o parcial sin autorización.
+          </p>
+        </footer>
+        <div className="fixed bottom-4 right-4 text-[10px] font-mono text-gray-400 opacity-50 z-50">
+          v{packageInfo.version}
         </div>
       </main>
     </div>

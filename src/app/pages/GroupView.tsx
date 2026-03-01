@@ -32,6 +32,7 @@ import {
   type Regla,
 } from '../lib/db';
 import { useAuth } from '../lib/useAuth';
+import packageInfo from '../../../package.json';
 import {
   Select,
   SelectContent,
@@ -684,6 +685,18 @@ export function GroupView() {
                 </div>
               )}
             </section>
+          </div>
+
+          <footer className="max-w-6xl mx-auto mt-20 pb-12 text-center opacity-40 px-4">
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold mb-1">
+              © 2026 Alejandro Balderas Rios
+            </p>
+            <p className="text-[9px] text-gray-400 dark:text-gray-500 font-medium">
+              Prohibida la reproducción total o parcial sin autorización.
+            </p>
+          </footer>
+          <div className="fixed bottom-4 right-4 text-[10px] font-mono text-gray-400 opacity-50 z-50">
+            v{packageInfo.version}
           </div>
         </main>
       </div>

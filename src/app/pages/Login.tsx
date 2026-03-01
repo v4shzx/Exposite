@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { LogIn } from 'lucide-react';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
 import { AUTH_KEY, USERNAME_KEY } from '../lib/useAuth';
+import packageInfo from '../../../package.json';
 
 export function Login() {
   const [username, setUsername] = useState('');
@@ -34,7 +35,7 @@ export function Login() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4 transition-colors">
             <LogIn className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bienvenido</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bienvenid@ a Exposite</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa tu nombre para continuar</p>
         </div>
 
@@ -67,6 +68,18 @@ export function Login() {
             Iniciar Sesión
           </button>
         </form>
+      </div>
+      {/* Footer */}
+      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full text-center opacity-40 hover:opacity-100 transition-opacity duration-500 px-4">
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest font-bold mb-1">
+          © 2026 Alejandro Balderas Rios
+        </p>
+        <p className="text-[9px] text-gray-400 dark:text-gray-500 font-medium">
+          Prohibida la reproducción total o parcial sin autorización.
+        </p>
+      </footer>
+      <div className="fixed bottom-4 right-4 text-[10px] font-mono text-gray-400 opacity-50">
+        v{packageInfo.version}
       </div>
     </div>
   );

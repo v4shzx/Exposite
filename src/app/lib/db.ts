@@ -64,40 +64,7 @@ function nextId<T extends { id: number }>(table: T[]): number {
 // ─── Inicialización con datos de ejemplo ──────────────────────────────────────
 
 export function initializeDB(): void {
-  const grupos = loadTable<Grupo>(KEYS.grupos);
-  if (grupos.length > 0) return; // ya inicializado
-
-  // Grupos de ejemplo
-  const gruposIniciales: Grupo[] = [
-    { id: 1, nombre: 'Equipo de Desarrollo', listaMiembros: [1, 2, 3, 4, 5, 6, 7, 8], listaRubrica: [1, 2, 3] },
-    { id: 2, nombre: 'Diseño UI/UX',         listaMiembros: [9, 10, 11],                listaRubrica: [1, 2, 3] },
-  ];
-
-  const miembrosIniciales: Miembro[] = [
-    { id: 1,  grupoId: 1, idLista: 1,  nombre: 'Carlos',  apPaterno: 'Rodríguez', apMaterno: '', puntaje: 0 },
-    { id: 2,  grupoId: 1, idLista: 2,  nombre: 'Ana',     apPaterno: 'García',    apMaterno: '', puntaje: 0 },
-    { id: 3,  grupoId: 1, idLista: 3,  nombre: 'Luis',    apPaterno: 'Martínez',  apMaterno: '', puntaje: 0 },
-    { id: 4,  grupoId: 1, idLista: 4,  nombre: 'María',   apPaterno: 'López',     apMaterno: '', puntaje: 0 },
-    { id: 5,  grupoId: 1, idLista: 5,  nombre: 'Pedro',   apPaterno: 'Sánchez',   apMaterno: '', puntaje: 0 },
-    { id: 6,  grupoId: 1, idLista: 6,  nombre: 'Laura',   apPaterno: 'Torres',    apMaterno: '', puntaje: 0 },
-    { id: 7,  grupoId: 1, idLista: 7,  nombre: 'Diego',   apPaterno: 'Ramírez',   apMaterno: '', puntaje: 0 },
-    { id: 8,  grupoId: 1, idLista: 8,  nombre: 'Sofía',   apPaterno: 'Flores',    apMaterno: '', puntaje: 0 },
-    { id: 9,  grupoId: 2, idLista: 1,  nombre: 'Juan',    apPaterno: 'Pérez',     apMaterno: '', puntaje: 0 },
-    { id: 10, grupoId: 2, idLista: 2,  nombre: 'Carmen',  apPaterno: 'Ruiz',      apMaterno: '', puntaje: 0 },
-    { id: 11, grupoId: 2, idLista: 3,  nombre: 'Alberto', apPaterno: 'Díaz',      apMaterno: '', puntaje: 0 },
-  ];
-
-  const reglasIniciales: Regla[] = [
-    { id: 1, grupoId: 1, titulo: 'Tiempo',        descripcion: 'Mínimo 3 min',           puntaje: 10 },
-    { id: 2, grupoId: 1, titulo: 'Vestimenta',    descripcion: 'Formal',                  puntaje: 10 },
-    { id: 3, grupoId: 1, titulo: 'Contenido',     descripcion: 'Completo y relevante',    puntaje: 20 },
-    { id: 4, grupoId: 2, titulo: 'Presentación',  descripcion: 'Slides limpios',          puntaje: 15 },
-    { id: 5, grupoId: 2, titulo: 'Dominio',       descripcion: 'Conocimiento del tema',   puntaje: 20 },
-  ];
-
-  saveTable(KEYS.grupos, gruposIniciales);
-  saveTable(KEYS.miembros, miembrosIniciales);
-  saveTable(KEYS.reglas, reglasIniciales);
+  // La base de datos ahora inicia vacía por defecto.
 }
 
 // ─── Grupos ───────────────────────────────────────────────────────────────────
