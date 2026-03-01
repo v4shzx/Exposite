@@ -343,7 +343,7 @@ export function GroupView() {
     setSessionTotal(0);
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     const doc = new jsPDF();
 
     // Add title
@@ -395,7 +395,34 @@ export function GroupView() {
 
     // Save PDF
     const fileName = `Resultados_${groupName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-    doc.save(fileName);
+    
+    // Check if running in Tauri desktop
+    const isDesktop = !!(window as any).__TAURI_INTERNALS__;
+
+    if (isDesktop) {
+      try {
+        const { save } = await import('@tauri-apps/plugin-dialog');
+        const { writeFile } = await import('@tauri-apps/plugin-fs');
+
+        const path = await save({
+          defaultPath: fileName,
+          filters: [{ name: 'PDF Document', extensions: ['pdf'] }]
+        });
+
+        if (path) {
+          const pdfContent = doc.output('arraybuffer');
+          await writeFile(path, new Uint8Array(pdfContent));
+          // toast? 
+        }
+      } catch (err) {
+        console.error('Error saving PDF in desktop mode:', err);
+        // Fallback to browser method anyway
+        doc.save(fileName);
+      }
+    } else {
+      // Standard browser download
+      doc.save(fileName);
+    }
   };
 
   const handleStartPresentations = () => {
