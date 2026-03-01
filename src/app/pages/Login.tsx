@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { LogIn } from 'lucide-react';
+import logoPng from '../../media/logo.png';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
 import { AUTH_KEY, USERNAME_KEY } from '../lib/useAuth';
 import packageInfo from '../../../package.json';
@@ -32,9 +32,7 @@ export function Login() {
       </div>
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-md border border-transparent dark:border-gray-800 transition-all duration-300">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4 transition-colors">
-            <LogIn className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-          </div>
+          <img src={logoPng} alt="Exposite logo" className="w-20 h-20 mx-auto mb-4 drop-shadow-md" />
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bienvenid@ a Exposite</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa tu nombre para continuar</p>
         </div>

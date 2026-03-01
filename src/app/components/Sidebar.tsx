@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ThemeToggleButton } from './ThemeToggleButton';
 import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import logoPng from '../../media/logo.png';
 
 // ── Context ────────────────────────────────────────────────────────────────────
 
@@ -83,8 +84,12 @@ export function Sidebar({ children }: SidebarProps) {
                     `}
                 >
                     <div className="p-4 flex flex-col h-full overflow-y-auto overflow-x-hidden">
-                        {/* Close button */}
-                        <div className="flex justify-end mb-4 shrink-0">
+                        {/* Header: logo + close */}
+                        <div className="flex items-center justify-between mb-6 shrink-0">
+                            <div className="flex items-center gap-3">
+                                <img src={logoPng} alt="Exposite" className="w-9 h-9" />
+                                <span className="text-lg font-bold text-gray-900 tracking-tight">Exposite</span>
+                            </div>
                             <button
                                 onClick={closeMobile}
                                 className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -121,25 +126,18 @@ export function Sidebar({ children }: SidebarProps) {
                 `}
             >
                 <div className="p-3 flex flex-col h-full overflow-y-auto overflow-x-hidden">
-                    {/* Collapse Toggle */}
-                    <div className={`flex shrink-0 mb-4 ${collapsed ? 'justify-center' : 'justify-end'}`}>
-                        <button
-                            onClick={() => setCollapsed(!collapsed)}
-                            className={`
-                                flex items-center gap-2 p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors
-                                ${!collapsed ? 'w-full text-sm font-medium' : ''}
-                            `}
-                            title={collapsed ? 'Mostrar herramientas' : 'Ocultar herramientas'}
-                        >
-                            {collapsed
-                                ? <ChevronRight className="w-4 h-4 flex-shrink-0" />
-                                : <>
-                                    <ChevronLeft className="w-4 h-4 flex-shrink-0" />
-                                    <span>Mostrar / Ocultar Herramientas</span>
-                                </>
-                            }
-                        </button>
+                    {/* Logo */}
+                    <div className={`flex items-center shrink-0 mb-4 ${collapsed ? 'justify-center' : 'gap-3 px-1'}`}>
+                        <img
+                            src={logoPng}
+                            alt="Exposite"
+                            className={`transition-all duration-300 ${collapsed ? 'w-9 h-9' : 'w-10 h-10'}`}
+                        />
+                        {!collapsed && (
+                            <span className="text-lg font-bold text-gray-900 tracking-tight">Exposite</span>
+                        )}
                     </div>
+
 
                     {/* Content */}
                     <div className="flex flex-col gap-6 flex-1">
@@ -147,8 +145,29 @@ export function Sidebar({ children }: SidebarProps) {
                     </div>
 
                     {/* Footer */}
-                    <div className="mt-auto pt-4 flex items-center justify-center border-t border-gray-100 shrink-0">
-                        <ThemeToggleButton collapsed={collapsed} />
+                    <div className="mt-auto pt-4 flex flex-col gap-2 border-t border-gray-100 shrink-0">
+                        {/* Collapse Toggle */}
+                        <div className={`flex shrink-0 ${collapsed ? 'justify-center' : 'justify-end'}`}>
+                            <button
+                                onClick={() => setCollapsed(!collapsed)}
+                                className={`
+                                    flex items-center gap-2 p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors
+                                    ${!collapsed ? 'w-full text-sm font-medium' : ''}
+                                `}
+                                title={collapsed ? 'Mostrar herramientas' : 'Ocultar herramientas'}
+                            >
+                                {collapsed
+                                    ? <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                                    : <>
+                                        <ChevronLeft className="w-4 h-4 flex-shrink-0" />
+                                        <span>Mostrar / Ocultar Herramientas</span>
+                                    </>
+                                }
+                            </button>
+                        </div>
+                        <div className="flex items-center justify-center">
+                            <ThemeToggleButton collapsed={collapsed} />
+                        </div>
                     </div>
                 </div>
             </aside>
