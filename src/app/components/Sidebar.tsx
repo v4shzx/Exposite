@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ThemeToggleButton } from './ThemeToggleButton';
 import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import logoSvg from '../../media/logo.svg';
 
 // ── Context ────────────────────────────────────────────────────────────────────
 
@@ -83,8 +84,12 @@ export function Sidebar({ children }: SidebarProps) {
                     `}
                 >
                     <div className="p-4 flex flex-col h-full overflow-y-auto overflow-x-hidden">
-                        {/* Close button */}
-                        <div className="flex justify-end mb-4 shrink-0">
+                        {/* Header: logo + close */}
+                        <div className="flex items-center justify-between mb-6 shrink-0">
+                            <div className="flex items-center gap-3">
+                                <img src={logoSvg} alt="Exposite" className="w-9 h-9" />
+                                <span className="text-lg font-bold text-gray-900 tracking-tight">Exposite</span>
+                            </div>
                             <button
                                 onClick={closeMobile}
                                 className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -121,6 +126,18 @@ export function Sidebar({ children }: SidebarProps) {
                 `}
             >
                 <div className="p-3 flex flex-col h-full overflow-y-auto overflow-x-hidden">
+                    {/* Logo */}
+                    <div className={`flex items-center shrink-0 mb-4 ${collapsed ? 'justify-center' : 'gap-3 px-1'}`}>
+                        <img
+                            src={logoSvg}
+                            alt="Exposite"
+                            className={`transition-all duration-300 ${collapsed ? 'w-9 h-9' : 'w-10 h-10'}`}
+                        />
+                        {!collapsed && (
+                            <span className="text-lg font-bold text-gray-900 tracking-tight">Exposite</span>
+                        )}
+                    </div>
+
                     {/* Collapse Toggle */}
                     <div className={`flex shrink-0 mb-4 ${collapsed ? 'justify-center' : 'justify-end'}`}>
                         <button
