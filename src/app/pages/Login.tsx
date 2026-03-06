@@ -34,7 +34,7 @@ export function Login() {
         <div className="text-center mb-8">
           <img src={logoSvg} alt="Exposite logo" className="w-20 h-20 mx-auto mb-4 drop-shadow-md" />
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bienvenid@ a Exposite</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa tu nombre para continuar</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa tu nombre completo para continuar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

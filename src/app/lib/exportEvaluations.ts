@@ -1,7 +1,7 @@
 /**
  * exportEvaluations.ts — Export current group evaluations as a JSON file.
  */
-import { GruposDB, MiembrosDB, type EvaluacionImportada } from './db';
+import { GruposDB, MiembrosDB, ReglasDB, type EvaluacionImportada } from './db';
 
 export function buildEvaluationJSON(
     grupoId: number,
@@ -29,7 +29,49 @@ export async function exportGroupJSON(
     const data = buildEvaluationJSON(grupoId, username);
     const jsonString = JSON.stringify(data, null, 2);
     const fileName = `Evaluacion_${data.grupoNombre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${data.evaluador.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+    await performDownload(jsonString, fileName);
+}
 
+export async function exportMembersJSON(
+    grupoId: number,
+    grupoNombre: string
+): Promise<void> {
+    const miembros = MiembrosDB.getByGrupo(grupoId);
+    const data = {
+        tipo: 'miembros',
+        grupoNombre,
+        miembros: miembros.map((m) => ({
+            idLista: m.idLista,
+            nombre: m.nombre,
+            apPaterno: m.apPaterno,
+            apMaterno: m.apMaterno,
+        })),
+    };
+    const jsonString = JSON.stringify(data, null, 2);
+    const fileName = `Miembros_${grupoNombre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+    await performDownload(jsonString, fileName);
+}
+
+export async function exportRubricJSON(
+    grupoId: number,
+    grupoNombre: string
+): Promise<void> {
+    const reglas = ReglasDB.getByGrupo(grupoId);
+    const data = {
+        tipo: 'rubrica',
+        grupoNombre,
+        reglas: reglas.map((r) => ({
+            titulo: r.titulo,
+            descripcion: r.descripcion,
+            puntaje: r.puntaje,
+        })),
+    };
+    const jsonString = JSON.stringify(data, null, 2);
+    const fileName = `Rubrica_${grupoNombre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+    await performDownload(jsonString, fileName);
+}
+
+async function performDownload(content: string, fileName: string): Promise<void> {
     const isDesktop = !!(window as any).__TAURI_INTERNALS__;
 
     if (isDesktop) {
@@ -44,14 +86,14 @@ export async function exportGroupJSON(
 
             if (path) {
                 const encoder = new TextEncoder();
-                await writeFile(path, encoder.encode(jsonString));
+                await writeFile(path, encoder.encode(content));
             }
         } catch (err) {
             console.error('Error saving JSON in desktop mode:', err);
-            browserDownload(jsonString, fileName);
+            browserDownload(content, fileName);
         }
     } else {
-        browserDownload(jsonString, fileName);
+        browserDownload(content, fileName);
     }
 }
 

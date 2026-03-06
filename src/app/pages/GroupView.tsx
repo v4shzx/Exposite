@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, RotateCcw, Play, FileDown, Home, Flag, Upload, Trophy } from 'lucide-react';
 import { jsPDF } from 'jspdf';
@@ -6,9 +6,8 @@ import autoTable from 'jspdf-autotable';
 import { AddMemberDialog, type MemberFormData } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
 import { Sidebar, SidebarSection, SidebarSeparator, SidebarButton } from '../components/Sidebar';
-import { exportGroupJSON } from '../lib/exportEvaluations';
+import { exportGroupJSON, exportMembersJSON, exportRubricJSON } from '../lib/exportEvaluations';
 import { ImportEvaluationsDialog } from '../components/ImportEvaluationsDialog';
-import { EvaluacionesDB } from '../lib/db';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from '../components/ui/alert-dialog';
 import {
+  EvaluacionesDB,
   GruposDB,
   MiembrosDB,
   ReglasDB,
@@ -59,6 +59,20 @@ interface RubricItemUI {
   title: string;
   description: string;
   points: number;
+}
+
+interface ImportedMember {
+  idLista: number;
+  nombre: string;
+  apPaterno: string;
+  apMaterno: string;
+}
+
+interface ImportedRubricRule {
+  titulo: string;
+  descripcion: string;
+  description?: string;
+  puntaje: number;
 }
 
 // ── Helpers de conversión ────────────────────────────────────────────────────
@@ -191,6 +205,8 @@ export function GroupView() {
   const [sortBy, setSortBy] = useState<'list' | 'score'>('list');
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [evalCount, setEvalCount] = useState(0);
+  const memberFileRef = useRef<HTMLInputElement>(null);
+  const rubricFileRef = useRef<HTMLInputElement>(null);
 
   // ── Sesión de presentaciones ───────────────────────────────────────────────
   const SESSION_KEY = useMemo(() => getSessionKey(gId), [gId]);
@@ -351,6 +367,57 @@ export function GroupView() {
     setSessionActive(false);
     setSessionCompleted([]);
     setSessionTotal(0);
+  };
+
+  const handleImportMembers = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (data.tipo === 'miembros' && Array.isArray(data.miembros)) {
+          data.miembros.forEach((m: ImportedMember) => {
+            MiembrosDB.create(gId, {
+              idLista: m.idLista,
+              nombre: m.nombre,
+              apPaterno: m.apPaterno,
+              apMaterno: m.apMaterno,
+            });
+          });
+          loadGroupData();
+        }
+      } catch (err) {
+        console.error('Error importing members:', err);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleImportRubric = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (data.tipo === 'rubrica' && Array.isArray(data.reglas)) {
+          data.reglas.forEach((r: ImportedRubricRule) => {
+            ReglasDB.create(gId, {
+              titulo: r.titulo,
+              descripcion: r.description || r.descripcion, // Support both if modified
+              puntaje: r.puntaje,
+            });
+          });
+          loadGroupData();
+        }
+      } catch (err) {
+        console.error('Error importing rubric:', err);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleExportPDF = async () => {
@@ -649,13 +716,31 @@ export function GroupView() {
                     </Select>
                   </div>
                 </div>
-                <button
-                  onClick={handleAddMember}
-                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md w-full sm:w-auto"
-                >
-                  <UserPlus className="w-5 h-5" />
-                  Añadir Miembro
-                </button>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => exportMembersJSON(gId, groupName)}
+                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    title="Exportar miembros a JSON"
+                  >
+                    <FileDown className="w-4 h-4" />
+                    <span className="hidden md:inline">Exportar</span>
+                  </button>
+                  <button
+                    onClick={() => memberFileRef.current?.click()}
+                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    title="Importar miembros desde JSON"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span className="hidden md:inline">Importar</span>
+                  </button>
+                  <button
+                    onClick={handleAddMember}
+                    className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md w-full sm:w-auto"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>Añadir Miembro</span>
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
@@ -689,13 +774,31 @@ export function GroupView() {
                     Total: {rubricItems.reduce((acc, item) => acc + item.points, 0)} pts
                   </div>
                 </div>
-                <button
-                  onClick={handleAddRubricItem}
-                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md w-full sm:w-auto"
-                >
-                  <Plus className="w-5 h-5" />
-                  Añadir Regla
-                </button>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => exportRubricJSON(gId, groupName)}
+                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    title="Exportar rúbrica a JSON"
+                  >
+                    <FileDown className="w-4 h-4" />
+                    <span className="hidden md:inline">Exportar</span>
+                  </button>
+                  <button
+                    onClick={() => rubricFileRef.current?.click()}
+                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    title="Importar rúbrica desde JSON"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span className="hidden md:inline">Importar</span>
+                  </button>
+                  <button
+                    onClick={handleAddRubricItem}
+                    className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md w-full sm:w-auto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Añadir Regla</span>
+                  </button>
+                </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-h-[560px] overflow-y-auto">
@@ -817,6 +920,22 @@ export function GroupView() {
         onClose={() => setIsImportDialogOpen(false)}
         grupoId={gId}
         onImported={loadEvalCount}
+      />
+
+      {/* Inputs de archivo ocultos */}
+      <input
+        type="file"
+        ref={memberFileRef}
+        className="hidden"
+        accept=".json"
+        onChange={handleImportMembers}
+      />
+      <input
+        type="file"
+        ref={rubricFileRef}
+        className="hidden"
+        accept=".json"
+        onChange={handleImportRubric}
       />
     </div>
   );
