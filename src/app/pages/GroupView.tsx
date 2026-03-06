@@ -193,7 +193,7 @@ export function GroupView() {
   const [sessionCompleted, setSessionCompleted] = useState<number[]>([]);
   const [sessionTotal, setSessionTotal] = useState(0);
 
-  useAuth(); // guard: redirige a '/' si no autenticado
+  const username = useAuth(); // guard: redirige a '/' si no autenticado
 
   const loadGroupData = useCallback(() => {
     const grupo = GruposDB.getById(gId);
@@ -356,9 +356,14 @@ export function GroupView() {
     doc.setTextColor(100);
     doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 30);
 
+    // Add evaluator name
+    doc.setFontSize(11);
+    doc.setTextColor(60);
+    doc.text(`Evaluado por: ${username || 'Sin nombre'}`, 14, 37);
+
     // Add a horizontal line
     doc.setDrawColor(200, 200, 200);
-    doc.line(14, 34, 196, 34);
+    doc.line(14, 41, 196, 41);
 
     // Create table data
     // Use sortedMembers to respect the current view preference
@@ -370,7 +375,7 @@ export function GroupView() {
 
     // Add table
     autoTable(doc, {
-      startY: 40,
+      startY: 47,
       head: [['No. Lista', 'Nombre del Miembro', 'Puntaje (pts)']],
       body: tableData,
       theme: 'grid',
