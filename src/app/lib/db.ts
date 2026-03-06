@@ -97,9 +97,9 @@ export const GruposDB = {
 
   delete(id: number): void {
     // Eliminar grupo, miembros y reglas asociados
-    saveTable(KEYS.grupos,  this.getAll().filter((g) => g.id !== id));
+    saveTable(KEYS.grupos, this.getAll().filter((g) => g.id !== id));
     saveTable(KEYS.miembros, loadTable<Miembro>(KEYS.miembros).filter((m) => m.grupoId !== id));
-    saveTable(KEYS.reglas,   loadTable<Regla>(KEYS.reglas).filter((r) => r.grupoId !== id));
+    saveTable(KEYS.reglas, loadTable<Regla>(KEYS.reglas).filter((r) => r.grupoId !== id));
   },
 };
 
@@ -209,5 +209,47 @@ export const ReglasDB = {
         listaRubrica: grupo.listaRubrica.filter((rid) => rid !== id),
       });
     }
+  },
+};
+
+// ─── Evaluaciones importadas ──────────────────────────────────────────────────
+
+export interface EvaluacionImportada {
+  evaluador: string;
+  grupoNombre: string;
+  exportedAt: string;
+  miembros: {
+    idLista: number;
+    nombre: string;
+    puntaje: number;
+  }[];
+}
+
+interface EvaluacionStored extends EvaluacionImportada {
+  grupoId: number;
+}
+
+const EVAL_KEY = 'exposite_evaluaciones';
+
+export const EvaluacionesDB = {
+  _load(): EvaluacionStored[] {
+    return loadTable<EvaluacionStored>(EVAL_KEY);
+  },
+
+  getByGrupo(grupoId: number): EvaluacionStored[] {
+    return this._load().filter((e) => e.grupoId === grupoId);
+  },
+
+  /** Import (upsert): if same evaluador + grupoId already exists, replace it. */
+  importar(grupoId: number, data: EvaluacionImportada): void {
+    const table = this._load().filter(
+      (e) => !(e.grupoId === grupoId && e.evaluador === data.evaluador)
+    );
+    table.push({ ...data, grupoId });
+    saveTable(EVAL_KEY, table);
+  },
+
+  clear(grupoId: number): void {
+    saveTable(EVAL_KEY, this._load().filter((e) => e.grupoId !== grupoId));
   },
 };

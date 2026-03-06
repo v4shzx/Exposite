@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, RotateCcw, Play, FileDown, Home, Flag } from 'lucide-react';
+import { Users, UserPlus, MoreVertical, Plus, Edit2, Trash2, RotateCcw, Play, FileDown, Home, Flag, Upload, Trophy } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { AddMemberDialog, type MemberFormData } from '../components/AddMemberDialog';
 import { AddRubricItemDialog } from '../components/AddRubricItemDialog';
 import { Sidebar, SidebarSection, SidebarSeparator, SidebarButton } from '../components/Sidebar';
+import { exportGroupJSON } from '../lib/exportEvaluations';
+import { ImportEvaluationsDialog } from '../components/ImportEvaluationsDialog';
+import { EvaluacionesDB } from '../lib/db';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -186,6 +189,8 @@ export function GroupView() {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isDeleteGroupConfirmOpen, setIsDeleteGroupConfirmOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'list' | 'score'>('list');
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [evalCount, setEvalCount] = useState(0);
 
   // ── Sesión de presentaciones ───────────────────────────────────────────────
   const SESSION_KEY = useMemo(() => getSessionKey(gId), [gId]);
@@ -208,8 +213,13 @@ export function GroupView() {
     }
   }, [gId]);
 
+  const loadEvalCount = useCallback(() => {
+    setEvalCount(EvaluacionesDB.getByGrupo(gId).length);
+  }, [gId]);
+
   useEffect(() => {
     loadGroupData();
+    loadEvalCount();
     // Restore session from sessionStorage
     const raw = sessionStorage.getItem(SESSION_KEY);
     if (raw) {
@@ -222,7 +232,7 @@ export function GroupView() {
         }
       } catch {/* ignore */ }
     }
-  }, [loadGroupData, SESSION_KEY]);
+  }, [loadGroupData, loadEvalCount, SESSION_KEY]);
 
   // ── Grupo ──────────────────────────────────────────────────────────────────
 
@@ -400,7 +410,7 @@ export function GroupView() {
 
     // Save PDF
     const fileName = `Resultados_${groupName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-    
+
     // Check if running in Tauri desktop
     const isDesktop = !!(window as any).__TAURI_INTERNALS__;
 
@@ -487,6 +497,28 @@ export function GroupView() {
             icon={<FileDown className="w-5 h-5 flex-shrink-0" />}
             label="Exportar PDF"
             onClick={handleExportPDF}
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
+          />
+
+          <SidebarButton
+            icon={<FileDown className="w-5 h-5 flex-shrink-0" />}
+            label="Exportar JSON"
+            onClick={() => exportGroupJSON(gId, username)}
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
+            title="Exportar evaluaciones como JSON"
+          />
+
+          <SidebarButton
+            icon={<Upload className="w-5 h-5 flex-shrink-0" />}
+            label="Importar Evaluaciones"
+            onClick={() => setIsImportDialogOpen(true)}
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
+          />
+
+          <SidebarButton
+            icon={<Trophy className="w-5 h-5 flex-shrink-0" />}
+            label={`Ver Podio${evalCount > 0 ? ` (${evalCount})` : ''}`}
+            onClick={() => navigate(`/group/${gId}/podium`)}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
 
@@ -778,6 +810,13 @@ export function GroupView() {
         onAddRubricItem={onAddRubricItem}
         onEditRubricItem={onEditRubricItem}
         initialData={editingRubricItem}
+      />
+
+      <ImportEvaluationsDialog
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        grupoId={gId}
+        onImported={loadEvalCount}
       />
     </div>
   );

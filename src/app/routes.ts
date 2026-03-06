@@ -3,6 +3,7 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { GroupView } from './pages/GroupView';
 import { PresentationView } from './pages/PresentationView';
+import { PodiumView } from './pages/PodiumView';
 
 export const router = createBrowserRouter([
   {
@@ -20,5 +21,9 @@ export const router = createBrowserRouter([
   {
     path: '/group/:groupId/present/:memberId',
     Component: PresentationView,
+  },
+  {
+    path: '/group/:groupId/podium',
+    Component: PodiumView,
   },
 ]);

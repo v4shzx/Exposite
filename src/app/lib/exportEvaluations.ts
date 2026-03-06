@@ -1,0 +1,68 @@
+/**
+ * exportEvaluations.ts — Export current group evaluations as a JSON file.
+ */
+import { GruposDB, MiembrosDB, type EvaluacionImportada } from './db';
+
+export function buildEvaluationJSON(
+    grupoId: number,
+    username: string
+): EvaluacionImportada {
+    const grupo = GruposDB.getById(grupoId);
+    const miembros = MiembrosDB.getByGrupo(grupoId);
+
+    return {
+        evaluador: username || 'Sin nombre',
+        grupoNombre: grupo?.nombre ?? 'Grupo',
+        exportedAt: new Date().toISOString(),
+        miembros: miembros.map((m) => ({
+            idLista: m.idLista,
+            nombre: `${m.nombre} ${m.apPaterno} ${m.apMaterno}`.trim(),
+            puntaje: m.puntaje ?? 0,
+        })),
+    };
+}
+
+export async function exportGroupJSON(
+    grupoId: number,
+    username: string
+): Promise<void> {
+    const data = buildEvaluationJSON(grupoId, username);
+    const jsonString = JSON.stringify(data, null, 2);
+    const fileName = `Evaluacion_${data.grupoNombre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${data.evaluador.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+
+    const isDesktop = !!(window as any).__TAURI_INTERNALS__;
+
+    if (isDesktop) {
+        try {
+            const { save } = await import('@tauri-apps/plugin-dialog');
+            const { writeFile } = await import('@tauri-apps/plugin-fs');
+
+            const path = await save({
+                defaultPath: fileName,
+                filters: [{ name: 'JSON', extensions: ['json'] }],
+            });
+
+            if (path) {
+                const encoder = new TextEncoder();
+                await writeFile(path, encoder.encode(jsonString));
+            }
+        } catch (err) {
+            console.error('Error saving JSON in desktop mode:', err);
+            browserDownload(jsonString, fileName);
+        }
+    } else {
+        browserDownload(jsonString, fileName);
+    }
+}
+
+function browserDownload(content: string, fileName: string): void {
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
