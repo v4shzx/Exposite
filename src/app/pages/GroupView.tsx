@@ -719,7 +719,7 @@ export function GroupView() {
                 <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => exportMembersJSON(gId, groupName)}
-                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    className="flex items-center justify-center gap-2 bg-pink-400 hover:bg-pink-500 text-pink-950 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-pink-500 shadow-sm flex-1 sm:flex-none"
                     title="Exportar miembros a JSON"
                   >
                     <FileDown className="w-4 h-4" />
@@ -777,7 +777,7 @@ export function GroupView() {
                 <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => exportRubricJSON(gId, groupName)}
-                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    className="flex items-center justify-center gap-2 bg-pink-400 hover:bg-pink-500 text-pink-950 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-pink-500 shadow-sm flex-1 sm:flex-none"
                     title="Exportar rúbrica a JSON"
                   >
                     <FileDown className="w-4 h-4" />
