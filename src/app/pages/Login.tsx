@@ -1,27 +1,27 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import logoSvg from '../../media/logo.svg';
-import { ThemeToggleButton } from '../components/ThemeToggleButton';
-import { AUTH_KEY, USERNAME_KEY } from '../lib/useAuth';
-import packageInfo from '../../../package.json';
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import logoPng from "../../media/logo.png";
+import { ThemeToggleButton } from "../components/ThemeToggleButton";
+import { AUTH_KEY, USERNAME_KEY } from "../lib/useAuth";
+import packageInfo from "../../../package.json";
 
 export function Login() {
-  const [username, setUsername] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!username.trim()) {
-      setError('Por favor, ingresa tu nombre para continuar');
+      setError("Por favor, ingresa tu nombre para continuar");
       return;
     }
 
     localStorage.setItem(USERNAME_KEY, username.trim());
-    localStorage.setItem(AUTH_KEY, 'true');
-    navigate('/dashboard');
+    localStorage.setItem(AUTH_KEY, "true");
+    navigate("/dashboard");
   };
 
   return (
@@ -32,14 +32,25 @@ export function Login() {
       </div>
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-md border border-transparent dark:border-gray-800 transition-all duration-300">
         <div className="text-center mb-8">
-          <img src={logoSvg} alt="Exposite logo" className="w-20 h-20 mx-auto mb-4 drop-shadow-md" />
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Bienvenid@ a Exposite</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Ingresa tu nombre completo para continuar</p>
+          <img
+            src={logoPng}
+            alt="Exposite logo"
+            className="w-20 h-20 mx-auto mb-4 drop-shadow-md"
+          />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Bienvenid@ a Exposite
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Ingresa tu nombre completo para continuar
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Nombre de Docente
             </label>
             <input
