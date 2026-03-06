@@ -559,17 +559,17 @@ export function GroupView() {
 
         <SidebarSeparator />
 
-        <SidebarSection title="Gestión del Grupo">
+        <SidebarSection title="Control de Datos">
           <SidebarButton
             icon={<FileDown className="w-5 h-5 flex-shrink-0" />}
-            label="Exportar PDF"
+            label="Reporte PDF"
             onClick={handleExportPDF}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
 
           <SidebarButton
             icon={<FileDown className="w-5 h-5 flex-shrink-0" />}
-            label="Exportar JSON"
+            label="Compartir Evaluaciones"
             onClick={() => exportGroupJSON(gId, username)}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
             title="Exportar evaluaciones como JSON"
@@ -581,10 +581,11 @@ export function GroupView() {
             onClick={() => setIsImportDialogOpen(true)}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
-
+        </SidebarSection>
+        <SidebarSection title="Acciones Rápidas">
           <SidebarButton
             icon={<Trophy className="w-5 h-5 flex-shrink-0" />}
-            label={`Ver Podio${evalCount > 0 ? ` (${evalCount})` : ''}`}
+            label={`Podio${evalCount > 0 ? ` (${evalCount})` : ''}`}
             onClick={() => navigate(`/group/${gId}/podium`)}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 border-transparent"
           />
@@ -719,7 +720,7 @@ export function GroupView() {
                 <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => exportMembersJSON(gId, groupName)}
-                    className="flex items-center justify-center gap-2 bg-pink-400 hover:bg-pink-500 text-pink-950 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-pink-500 shadow-sm flex-1 sm:flex-none"
+                    className="flex items-center justify-center gap-2 bg-pink-400 hover:bg-pink-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors border border-pink-500 shadow-sm flex-1 sm:flex-none"
                     title="Exportar miembros a JSON"
                   >
                     <FileDown className="w-4 h-4" />
@@ -727,7 +728,7 @@ export function GroupView() {
                   </button>
                   <button
                     onClick={() => memberFileRef.current?.click()}
-                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    className="flex items-center justify-center gap-2 bg-amber-400 hover:bg-yellow-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors border border-yellow-200 shadow-sm flex-1 sm:flex-none"
                     title="Importar miembros desde JSON"
                   >
                     <Upload className="w-4 h-4" />
@@ -777,7 +778,7 @@ export function GroupView() {
                 <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                   <button
                     onClick={() => exportRubricJSON(gId, groupName)}
-                    className="flex items-center justify-center gap-2 bg-pink-400 hover:bg-pink-500 text-pink-950 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-pink-500 shadow-sm flex-1 sm:flex-none"
+                    className="flex items-center justify-center gap-2 bg-pink-400 hover:bg-pink-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors border border-pink-500 shadow-sm flex-1 sm:flex-none"
                     title="Exportar rúbrica a JSON"
                   >
                     <FileDown className="w-4 h-4" />
@@ -785,7 +786,7 @@ export function GroupView() {
                   </button>
                   <button
                     onClick={() => rubricFileRef.current?.click()}
-                    className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
+                    className="flex items-center justify-center gap-2 bg-amber-400 hover:bg-yellow-500 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors border border-gray-200 shadow-sm flex-1 sm:flex-none"
                     title="Importar rúbrica desde JSON"
                   >
                     <Upload className="w-4 h-4" />

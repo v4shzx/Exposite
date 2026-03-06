@@ -80,9 +80,9 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
               type="text"
               required
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-sm"
-              placeholder="Ej. Juan"
+              onChange={(e) => setFirstName(e.target.value.toUpperCase())}
+              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-sm uppercase"
+              placeholder="Ej. JUAN"
               autoFocus
             />
           </div>
@@ -96,9 +96,9 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
                 type="text"
                 required
                 value={paternalLastName}
-                onChange={(e) => setPaternalLastName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-sm"
-                placeholder="Ej. Pérez"
+                onChange={(e) => setPaternalLastName(e.target.value.toUpperCase())}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-sm uppercase"
+                placeholder="Ej. PÉREZ"
               />
             </div>
             <div>
@@ -108,9 +108,9 @@ export function AddMemberDialog({ isOpen, onClose, onAddMember, onEditMember, in
               <input
                 type="text"
                 value={maternalLastName}
-                onChange={(e) => setMaternalLastName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-sm"
-                placeholder="Ej. López"
+                onChange={(e) => setMaternalLastName(e.target.value.toUpperCase())}
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all text-sm uppercase"
+                placeholder="Ej. LÓPEZ"
               />
             </div>
           </div>
