@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Trophy, Trash2, FileDown } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { toast } from 'sonner';
 import { GruposDB, MiembrosDB, EvaluacionesDB } from '../lib/db';
 import { useAuth } from '../lib/useAuth';
 import {
@@ -97,66 +98,76 @@ export function PodiumView() {
     // ── Export podium PDF ───────────────────────────────────────────────────────
 
     const handleExportPDF = async () => {
-        const doc = new jsPDF();
+        try {
+            const doc = new jsPDF();
 
-        doc.setFontSize(18);
-        doc.setTextColor(33, 37, 41);
-        doc.text(`Podio — ${groupName}`, 14, 22);
+            doc.setFontSize(18);
+            doc.setTextColor(33, 37, 41);
+            doc.text(`Podio — ${groupName}`, 14, 22);
 
-        doc.setFontSize(11);
-        doc.setTextColor(100);
-        doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 30);
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 30);
 
-        doc.setFontSize(10);
-        doc.setTextColor(60);
-        doc.text(`Evaluadores (${evaluadores.length}): ${evaluadores.join(', ')}`, 14, 37);
+            doc.setFontSize(10);
+            doc.setTextColor(60);
+            doc.text(`Evaluadores (${evaluadores.length}): ${evaluadores.join(', ')}`, 14, 37);
 
-        doc.setDrawColor(200, 200, 200);
-        doc.line(14, 41, 196, 41);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, 41, 196, 41);
 
-        const tableData = aggregated.map((m, i) => [
-            `${i + 1}`,
-            `#${m.idLista}`,
-            m.nombre,
-            m.promedio.toFixed(1),
-        ]);
+            const tableData = aggregated.map((m, i) => [
+                `${i + 1}`,
+                `#${m.idLista}`,
+                m.nombre,
+                m.promedio.toFixed(1),
+            ]);
 
-        autoTable(doc, {
-            startY: 47,
-            head: [['Pos.', 'No. Lista', 'Nombre', 'Puntaje Promedio']],
-            body: tableData,
-            theme: 'grid',
-            headStyles: {
-                fillColor: [79, 70, 229],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
-                halign: 'center',
-            },
-            columnStyles: {
-                0: { halign: 'center', cellWidth: 20 },
-                1: { halign: 'center', cellWidth: 25 },
-                3: { halign: 'center', cellWidth: 40 },
-            },
-            styles: { fontSize: 10, cellPadding: 5 },
-            alternateRowStyles: { fillColor: [245, 247, 251] },
-        });
+            autoTable(doc, {
+                startY: 47,
+                head: [['Pos.', 'No. Lista', 'Nombre', 'Puntaje Promedio']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [79, 70, 229],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    halign: 'center',
+                },
+                columnStyles: {
+                    0: { halign: 'center', cellWidth: 20 },
+                    1: { halign: 'center', cellWidth: 25 },
+                    3: { halign: 'center', cellWidth: 40 },
+                },
+                styles: { fontSize: 10, cellPadding: 5 },
+                alternateRowStyles: { fillColor: [245, 247, 251] },
+            });
 
-        const fileName = `Podio_${groupName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-        const isDesktop = !!(window as any).__TAURI_INTERNALS__;
+            const fileName = `Podio_${groupName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+            const isDesktop = !!(window as any).__TAURI_INTERNALS__;
 
-        if (isDesktop) {
-            try {
-                const { save } = await import('@tauri-apps/plugin-dialog');
-                const { writeFile } = await import('@tauri-apps/plugin-fs');
-                const path = await save({ defaultPath: fileName, filters: [{ name: 'PDF', extensions: ['pdf'] }] });
-                if (path) {
-                    await writeFile(path, new Uint8Array(doc.output('arraybuffer')));
+            if (isDesktop) {
+                try {
+                    const { save } = await import('@tauri-apps/plugin-dialog');
+                    const { writeFile } = await import('@tauri-apps/plugin-fs');
+                    const path = await save({ defaultPath: fileName, filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+                    if (path) {
+                        await writeFile(path, new Uint8Array(doc.output('arraybuffer')));
+                        toast.success('Podio guardado exitosamente');
+                    }
+                } catch (err) {
+                    console.error('Error saving PDF in desktop mode:', err);
+                    toast.error('Error al guardar en escritorio, intentando descarga web...');
+                    doc.save(fileName);
+                    toast.success('Descarga iniciada');
                 }
-            } catch {
+            } else {
                 doc.save(fileName);
+                toast.success('Descarga iniciada');
             }
-        } else {
-            doc.save(fileName);
+        } catch (err) {
+            console.error('General PDF export error:', err);
+            toast.error('No se pudo generar el PDF');
         }
     };
 

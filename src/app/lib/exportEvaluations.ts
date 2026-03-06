@@ -71,6 +71,8 @@ export async function exportRubricJSON(
     await performDownload(jsonString, fileName);
 }
 
+import { toast } from 'sonner';
+
 async function performDownload(content: string, fileName: string): Promise<void> {
     const isDesktop = !!(window as any).__TAURI_INTERNALS__;
 
@@ -87,9 +89,11 @@ async function performDownload(content: string, fileName: string): Promise<void>
             if (path) {
                 const encoder = new TextEncoder();
                 await writeFile(path, encoder.encode(content));
+                toast.success('Archivo guardado exitosamente');
             }
         } catch (err) {
             console.error('Error saving JSON in desktop mode:', err);
+            toast.error('Error al guardar en escritorio, intentando descarga web...');
             browserDownload(content, fileName);
         }
     } else {
@@ -98,13 +102,20 @@ async function performDownload(content: string, fileName: string): Promise<void>
 }
 
 function browserDownload(content: string, fileName: string): void {
-    const blob = new Blob([content], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+        const blob = new Blob([content], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success('Descarga iniciada');
+    } catch (err) {
+        console.error('Browser download error:', err);
+        toast.error('No se pudo iniciar la descarga');
+    }
 }
+
